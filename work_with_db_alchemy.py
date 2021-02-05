@@ -74,6 +74,29 @@ class SearchUsers(BASE):
     liked_status = Column(Boolean, default=null)
 
 
+# def insert_into_gender():
+#     gender_woman = Gender(ID=1, title="woman")
+#     gender_man = Gender(ID=2, title="man")
+#     gender_any = Gender(ID=3, title="any")
+#     session.add_all([gender_woman, gender_man, gender_any])
+#     session.commit()
+
+
+# def insert_into_status():
+#     status_1 = Status(ID=1, name="не женат(не за мужем)")
+#     status_2 = Status(ID=2, name="встречается")
+#     status_3 = Status(ID=3, name="помолвлен(-а)")
+#     status_4 = Status(ID=4, name="женат(за мужем)")
+#     status_5 = Status(ID=5, name="всё сложно")
+#     status_6 = Status(ID=6, name="в активном поиске")
+#     status_7 = Status(ID=7, name="влюблен(-а)")
+#     status_8 = Status(ID=8, name="в гражданском браке")
+#     session.add_all([status_1, status_2, status_3, status_4, status_5, status_6, status_7, status_8])
+#     session.commit()
+
+
 if __name__ == "__main__":
     session = Session()
     # BASE.metadata.create_all(engine)
+    # insert_into_gender()
+    # insert_into_status()
