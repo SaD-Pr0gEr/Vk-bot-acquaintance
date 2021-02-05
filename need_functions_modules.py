@@ -152,7 +152,7 @@ def search_users(age_from, age_to, gender, town, status, country):
     response_json = response.json()["response"]["items"]
     # print(response_json)
 
-    users = ({"name": {i["first_name"]}, "surname": {i["last_name"]}, "User_ID": i["id"],
+    users = ({"name": i["first_name"], "surname": i["last_name"], "User_ID": i["id"],
               "town": i["home_town"], "country": i["country"], "gender": i["sex"], "status": i["status"]} for i in
              response_json if "home_town" in i and town.lower() in i["home_town"].lower() and "country" in i and
              "status" in i)
@@ -163,13 +163,3 @@ def search_users(age_from, age_to, gender, town, status, country):
 # get_token()
 # search_country("Узбекистан")
 
-
-# def search_town(country_name, town_name): inner = search_country(country_name) name = inner["country_name"] ids =
-# inner["country_id"] V = "5.126" API_BASE_URL = "https://api.vk.com/method/" link = urljoin(API_BASE_URL,
-# "database.getCities") response = requests.get(link, params={ "access_token": user_token, "country_id": ids, "v": V,
-# "need_all": 1, "count": 1000 }) response_json = response.json()["response"]["items"] # print(response_json)
-# some_generator = ({"ID": i["id"], "town": i["title"], "region": i["region"]} for i in response_json if "region" in
-# i and town_name.lower() in i["region"].lower()) for i in some_generator: print(i)
-#
-#
-# search_town("узбекистан", "Ташкент")
