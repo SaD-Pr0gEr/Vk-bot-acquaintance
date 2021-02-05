@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlencode
 from config_keys import user_token
+from pprint import pprint
 
 
 # ЭТО КОД ДЛЯ ПОЛУЧЕНИЕ ТОКЕНА
@@ -143,23 +144,24 @@ def search_users(age_from, age_to, gender, town, status, country):
                                 "is_closed": False,
                                 "can_access_closed": False,
                                 "country": country_id["country_id"],
-                                "hometown": town,
-                                "fields": ["home_town, sex, country, status"],
+                                "fields": ["home_town, sex, country, status, city"],
                                 "count": 1000,
                                 "has_photo": 1
                             })
     # print(response.json())
     response_json = response.json()["response"]["items"]
-    # print(response_json)
+    # pprint(response_json)
 
     users = ({"name": i["first_name"], "surname": i["last_name"], "User_ID": i["id"],
-              "town": i["home_town"], "country": i["country"], "gender": i["sex"], "status": i["status"]} for i in
-             response_json if "home_town" in i and town.lower() in i["home_town"].lower() and "country" in i and
+              "city": i["city"], "country": i["country"], "gender": i["sex"], "status": i["status"]} for i in
+             response_json if "city" in i and town.lower() in i["city"]["title"].lower() and "country" in i and
              "status" in i)
-    # for i in users:
-    #     print(i)
+    for i in users:
+        print(i)
     return users
 
+
+search_users(18, 20, 1, "ташкент", 1, "узбекистан")
 # get_token()
 # search_country("Узбекистан")
 
