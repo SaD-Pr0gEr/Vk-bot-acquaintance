@@ -156,12 +156,11 @@ def search_users(age_from, age_to, gender, town, status, country):
               "city": i["city"], "country": i["country"], "gender": i["sex"], "status": i["status"]} for i in
              response_json if "city" in i and town.lower() in i["city"]["title"].lower() and "country" in i and
              "status" in i)
-    for i in users:
-        print(i)
+
     return users
 
 
-search_users(18, 20, 1, "ташкент", 1, "узбекистан")
+# search_users(18, 20, 1, "ташкент", 1, "узбекистан")
 # get_token()
 # search_country("Узбекистан")
 
