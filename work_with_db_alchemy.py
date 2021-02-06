@@ -6,6 +6,7 @@ from config_keys import owner_db, db_name, db_password
 engine = create_engine(f"postgresql+psycopg2://{owner_db}:{db_password}@localhost:5432/{db_name}")
 
 Session = sessionmaker(bind=engine)
+session = Session()
 
 BASE = declarative_base()
 
@@ -96,7 +97,7 @@ class SearchUsers(BASE):
 
 
 if __name__ == "__main__":
-    session = Session()
+    pass
     # BASE.metadata.create_all(engine)
     # insert_into_gender()
     # insert_into_status()
