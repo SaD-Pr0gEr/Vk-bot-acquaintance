@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, and_,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config_keys import owner_db, db_name, db_password
+from need_functions_modules import search_country_for_db
 
 engine = create_engine(f"postgresql+psycopg2://{owner_db}:{db_password}@localhost:5432/{db_name}")
 
@@ -96,6 +97,14 @@ class SearchUsers(BASE):
 #     session.commit()
 
 
+def insert_into_country():
+    countrys = search_country_for_db()
+    for i in countrys:
+        add = County(ID=i["id"], name=i["title"])
+        session.add(add)
+    session.commit()
+
+
 def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
     one_user = session.query(AllVkUsers).filter(vk_id == AllVkUsers.vk_id).first()
     know_user_gender = session.query(Gender).filter(gender == Gender.ID).first()
@@ -115,7 +124,9 @@ def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
 
 
 if __name__ == "__main__":
-    insert_bot_user_to_vk_users(684385484, "Озод", "ochilov", 1)
+    pass
+    # insert_bot_user_to_vk_users(684385484, "Озод", "ochilov", 1)
+    # insert_into_country()
     # BASE.metadata.create_all(engine)
     # insert_into_gender()
     # insert_into_status()

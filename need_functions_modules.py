@@ -91,7 +91,7 @@ def get_photos(owner_user_id):
     return top_photos
 
 
-def search_country(country):
+def search_country_for_db():
     V = "5.126"
     API_BASE_URL = "https://api.vk.com/method/"
     link = urljoin(API_BASE_URL, "database.getCountries")
@@ -104,19 +104,11 @@ def search_country(country):
                             })
     # print(response.json())
     response_json = response.json()["response"]["items"]
-    # print(response_json)
-    country_dict = {}
-    for i in response_json:
-        ids = i["id"]
-        country_name = i["title"]
-        if country.lower() in country_name.lower():
-            country_dict["country_name"] = country_name.lower()
-            country_dict["country_id"] = ids
-    return country_dict
+    return response_json
 
 
 def search_users(age_from, age_to, gender, town, status, country):
-    country_id = search_country(country)
+    # country_id = search_country(country)
     V = "5.89"
     API_BASE_URL = "https://api.vk.com/method/"
     link = urljoin(API_BASE_URL, "users.search")
@@ -131,7 +123,7 @@ def search_users(age_from, age_to, gender, town, status, country):
                                 "v": V,
                                 "is_closed": False,
                                 "can_access_closed": False,
-                                "country": country_id["country_id"],
+                                # "country": country_id["country_id"],
                                 "fields": ["home_town, sex, country, status, city"],
                                 "count": 1000,
                                 "has_photo": 1
