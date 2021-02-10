@@ -134,6 +134,11 @@ def select_search_country(country):
         return False
 
 
+def insert_search_params(vk_id, age_from, age_to, status, town, country, gender):
+    SearchParams()
+    pass
+
+
 if __name__ == "__main__":
     # insert_bot_user_to_vk_users(684385484, "Озод", "ochilov", 1)
     # insert_into_country()

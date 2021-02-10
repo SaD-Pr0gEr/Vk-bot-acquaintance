@@ -123,7 +123,7 @@ def search_users(age_from, age_to, gender, town, status, country):
                                 "is_closed": False,
                                 "can_access_closed": False,
                                 "country": country,
-                                "fields": ["home_town, sex, country, status, city"],
+                                "fields": ["home_town, sex, country, city"],
                                 "count": 1000,
                                 "has_photo": 1
                             })
@@ -132,7 +132,7 @@ def search_users(age_from, age_to, gender, town, status, country):
     # pprint(response_json)
 
     users = ({"name": i["first_name"], "surname": i["last_name"], "User_ID": i["id"],
-              "city": i["city"], "country": i["country"], "gender": i["sex"], "status": i["status"]} for i in
+              "city": i["city"], "country": i["country"], "gender": i["sex"]} for i in
              response_json if "city" in i and town.lower() in i["city"]["title"].lower() and "country" in i and
              "status" in i)
     return users

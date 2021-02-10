@@ -27,6 +27,7 @@ class ServerBot:
         self.country_name = "узбекистан"
         self.country_id = 0
         self.town = "ташкент"
+        self.town_id = 0
         self.user_name = ""
         self.user_surname = ""
         self.user_gender = ""
@@ -71,7 +72,7 @@ class ServerBot:
             self.send_msg(self.user_id, f"Вводите город поиска")
             return self.state
         else:
-            self.send_msg(self.user_id, "Вы ввели неправильную страну")
+            self.send_msg(self.user_id, "Вы ввели неправильную страну пожалуйста вводите её заново")
             self.state = STATUSES["choose_country_wait"]
             return self.state
 
@@ -95,7 +96,7 @@ class ServerBot:
                                     f'Максимальный возраст: {self.age_to},\n'
                                     f'Город: {self.town},\n'
                                     f'Пол: {self.gender_text},\n'
-                                    f'Страна: {self.country_id},\n'
+                                    f'Страна: {self.country_name},\n'
                                     f'Семейное положение: {self.status}\n'
                                     f'Хотите начать?\n'
                                     f'пишите да или нет')
@@ -180,12 +181,12 @@ class ServerBot:
                                                     f"8.в гражданском браке")
 
                     elif self.state == STATUSES["choose_status"] and self.request == "1":
-                        self.got_it()
                         self.status = 1
+                        self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "2":
-                        self.got_it()
                         self.status = 2
+                        self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "3":
                         self.status = 3
@@ -212,7 +213,6 @@ class ServerBot:
                         self.got_it()
 
                     elif self.state == STATUSES["got_it"] and self.request == "да":
-                        self.state = STATUSES["commands"]
                         self.searching()
 
                     elif self.state == STATUSES["got_it"] and self.request == "нет":
