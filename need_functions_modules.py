@@ -67,12 +67,13 @@ def parse_bot_user(vk_id):
                                 "fields": ["sex, status"]
                             })
     response_json = response.json()["response"]
+    print(response_json)
     some_dict = {}
     for i in response_json:
         some_dict["name"] = i["first_name"]
         some_dict["surname"] = i["last_name"]
         some_dict["ID"] = i["id"]
-        some_dict["gemder"] = i["sex"]
+        some_dict["gender"] = i["sex"]
     return some_dict
 
 

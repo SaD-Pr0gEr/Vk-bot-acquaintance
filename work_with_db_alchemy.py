@@ -96,6 +96,10 @@ class SearchUsers(BASE):
 #     session.commit()
 
 
+def insert_bot_user_to_vk_users(vk_id, ):
+    pass
+
+
 if __name__ == "__main__":
     pass
     # BASE.metadata.create_all(engine)
