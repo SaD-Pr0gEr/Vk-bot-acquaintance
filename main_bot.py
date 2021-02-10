@@ -56,7 +56,7 @@ class ServerBot:
         search = search_users(self.age_from, self.age_to, self.gender, self.town, self.state, self.country)
         for i in search:
             self.send_msg(self.user_id, f'{i["name"]}, {i["surname"]}ID: {i["User_ID"]}, '
-                                        f'жил(-а) в городе(городах):{i["town"]}')
+                                        f'жил(-а) в городе:{i["city"]["title"]} в стране: {i["country"]["title"]}')
         self.state = STATUSES["commands"]
         self.send_msg(self.user_id, "Этот сеанс окончен и мы возвращаемся в состояние bot_commands")
         self.commands()
@@ -156,60 +156,109 @@ class ServerBot:
                     elif self.state == STATUSES["choose_status"] and self.request == "1":
                         self.state = STATUSES["got_it"]
                         self.status = 1
-                        self.send_msg(self.user_id, f"Хотите начать?\n"
-                                                    f"пишите да или нет")
-
-                    elif self.state == STATUSES["choose_status"] and self.request == "2":
-                        self.state = STATUSES["got_it"]
-                        self.status = 2
-                        self.send_msg(self.user_id, f"Хотите начать?\n"
-                                                    f"пишите да или нет")
-
-                    elif self.state == STATUSES["choose_status"] and self.request == "3":
-                        self.state = STATUSES["got_it"]
-                        self.status = 3
-                        self.send_msg(self.user_id, f"Хотите начать?\n"
-                                                    f"пишите да или нет")
-
-                    elif self.state == STATUSES["choose_status"] and self.request == "4":
-                        self.state = STATUSES["got_it"]
-                        self.status = 4
-                        self.send_msg(self.user_id, f"Хотите начать?\n"
-                                                    f"пишите да или нет")
-
-                    elif self.state == STATUSES["choose_status"] and self.request == "5":
-                        self.state = STATUSES["got_it"]
-                        self.status = 5
-                        self.send_msg(self.user_id, f"Хотите начать?\n"
-                                                    f"пишите да или нет")
-
-                    elif self.state == STATUSES["choose_status"] and self.request == "6":
-                        self.state = STATUSES["got_it"]
-                        self.status = 6
-                        self.send_msg(self.user_id, f"Хотите начать?\n"
-                                                    f"пишите да или нет")
-
-                    elif self.state == STATUSES["choose_status"] and self.request == "7":
-                        self.state = STATUSES["got_it"]
-                        self.status = 7
-                        self.send_msg(self.user_id, f"Хотите начать?\n"
-                                                    f"пишите да или нет")
-
-                    elif self.state == STATUSES["choose_status"] and self.request == "8":
-                        self.state = STATUSES["got_it"]
-                        self.status = 8
-                        self.send_msg(self.user_id, f"Хотите начать?\n"
-                                                    f"пишите да или нет")
-
-                    elif self.state == STATUSES["got_it"] and self.request == "да":
-                        self.state = STATUSES["commands"]
                         self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
                                                     f'Минимальный возраст: {self.age_from},\n'
                                                     f'Максимальный возраст: {self.age_to},\n'
                                                     f'Город: {self.town},\n'
                                                     f'Пол: {self.gender_text},\n'
                                                     f'Страна: {self.country},\n'
-                                                    f'Семейное положение: {self.status}')
+                                                    f'Семейное положение: {self.status}\n'
+                                                    f'Хотите начать?\n'
+                                                    f'пишите да или нет')
+
+                    elif self.state == STATUSES["choose_status"] and self.request == "2":
+                        self.state = STATUSES["got_it"]
+                        self.status = 2
+                        self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
+                                                    f'Минимальный возраст: {self.age_from},\n'
+                                                    f'Максимальный возраст: {self.age_to},\n'
+                                                    f'Город: {self.town},\n'
+                                                    f'Пол: {self.gender_text},\n'
+                                                    f'Страна: {self.country},\n'
+                                                    f'Семейное положение: {self.status}\n'
+                                                    f'Хотите начать?\n'
+                                                    f'пишите да или нет')
+
+                    elif self.state == STATUSES["choose_status"] and self.request == "3":
+                        self.state = STATUSES["got_it"]
+                        self.status = 3
+                        self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
+                                                    f'Минимальный возраст: {self.age_from},\n'
+                                                    f'Максимальный возраст: {self.age_to},\n'
+                                                    f'Город: {self.town},\n'
+                                                    f'Пол: {self.gender_text},\n'
+                                                    f'Страна: {self.country},\n'
+                                                    f'Семейное положение: {self.status}\n'
+                                                    f'Хотите начать?\n'
+                                                    f'пишите да или нет')
+
+                    elif self.state == STATUSES["choose_status"] and self.request == "4":
+                        self.state = STATUSES["got_it"]
+                        self.status = 4
+                        self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
+                                                    f'Минимальный возраст: {self.age_from},\n'
+                                                    f'Максимальный возраст: {self.age_to},\n'
+                                                    f'Город: {self.town},\n'
+                                                    f'Пол: {self.gender_text},\n'
+                                                    f'Страна: {self.country},\n'
+                                                    f'Семейное положение: {self.status}\n'
+                                                    f'Хотите начать?\n'
+                                                    f'пишите да или нет')
+
+                    elif self.state == STATUSES["choose_status"] and self.request == "5":
+                        self.state = STATUSES["got_it"]
+                        self.status = 5
+                        self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
+                                                    f'Минимальный возраст: {self.age_from},\n'
+                                                    f'Максимальный возраст: {self.age_to},\n'
+                                                    f'Город: {self.town},\n'
+                                                    f'Пол: {self.gender_text},\n'
+                                                    f'Страна: {self.country},\n'
+                                                    f'Семейное положение: {self.status}\n'
+                                                    f'Хотите начать?\n'
+                                                    f'пишите да или нет')
+
+                    elif self.state == STATUSES["choose_status"] and self.request == "6":
+                        self.state = STATUSES["got_it"]
+                        self.status = 6
+                        self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
+                                                    f'Минимальный возраст: {self.age_from},\n'
+                                                    f'Максимальный возраст: {self.age_to},\n'
+                                                    f'Город: {self.town},\n'
+                                                    f'Пол: {self.gender_text},\n'
+                                                    f'Страна: {self.country},\n'
+                                                    f'Семейное положение: {self.status}\n'
+                                                    f'Хотите начать?\n'
+                                                    f'пишите да или нет')
+
+                    elif self.state == STATUSES["choose_status"] and self.request == "7":
+                        self.state = STATUSES["got_it"]
+                        self.status = 7
+                        self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
+                                                    f'Минимальный возраст: {self.age_from},\n'
+                                                    f'Максимальный возраст: {self.age_to},\n'
+                                                    f'Город: {self.town},\n'
+                                                    f'Пол: {self.gender_text},\n'
+                                                    f'Страна: {self.country},\n'
+                                                    f'Семейное положение: {self.status}\n'
+                                                    f'Хотите начать?\n'
+                                                    f'пишите да или нет')
+
+                    elif self.state == STATUSES["choose_status"] and self.request == "8":
+                        self.state = STATUSES["got_it"]
+                        self.status = 8
+                        self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
+                                                    f'Минимальный возраст: {self.age_from},\n'
+                                                    f'Максимальный возраст: {self.age_to},\n'
+                                                    f'Город: {self.town},\n'
+                                                    f'Пол: {self.gender_text},\n'
+                                                    f'Страна: {self.country},\n'
+                                                    f'Семейное положение: {self.status}\n'
+                                                    f'Хотите начать?\n'
+                                                    f'пишите да или нет')
+
+                    elif self.state == STATUSES["got_it"] and self.request == "да":
+                        self.state = STATUSES["commands"]
                         self.searching()
 
                     elif self.state == STATUSES["got_it"] and self.request == "нет":
