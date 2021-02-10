@@ -111,7 +111,7 @@ def insert_bot_user_to_vk_users(vk_id, first_name, last_name):
 
 
 if __name__ == "__main__":
-    insert_bot_user_to_vk_users(684385484, "Озод", "ochilov", 2, "JUST_PROGRAMMER")
+    insert_bot_user_to_vk_users(684385484, "Озод", "ochilov")
     # BASE.metadata.create_all(engine)
     # insert_into_gender()
     # insert_into_status()
