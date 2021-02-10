@@ -2,7 +2,9 @@ import vk_api
 from random import randrange
 from vk_api.longpoll import VkLongPoll, VkEventType
 from config_keys import user_token as u_t, bots_token as b_t
-from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, know_username, search_users
+from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user
+from work_with_db_alchemy import insert_bot_user_to_vk_users
+
 
 STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_age_to=4,
                 choose_status=5, news=6, history=7, got_it=8,
@@ -25,16 +27,21 @@ class ServerBot:
         self.country = "узбекистан"
         self.town = "ташкент"
         self.user_name = ""
-        self.user_id_db = 0
+        self.user_surname = ""
+        self.user_gender = ""
         self.gender_text = ""
 
     def send_msg(self, user_id, message):
         self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7)})
 
     def hello(self):
-        self.user_name = know_username(self.user_id)
+        parsing_bot_user = parse_bot_user(self.user_id)
+        self.user_name = parsing_bot_user["name"]
+        self.user_surname = parsing_bot_user["surname"]
+        self.user_gender = parsing_bot_user["gender"]
         self.send_msg(self.user_id, f"Привет {self.user_name}!\n"
                                     f"Я бот VKinder ваш помощник для помощи вводите bot_commands")
+        insert_bot_user_to_vk_users(self.user_id, self.user_name, self.user_surname, self.user_gender)
         self.state = STATUSES["commands"]
         return self.state
 

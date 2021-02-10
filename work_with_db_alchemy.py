@@ -96,22 +96,26 @@ class SearchUsers(BASE):
 #     session.commit()
 
 
-def insert_bot_user_to_vk_users(vk_id, first_name, last_name):
+def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
     one_user = session.query(AllVkUsers).filter(vk_id == AllVkUsers.vk_id).first()
+    know_user_gender = session.query(Gender).filter(gender == Gender.ID).first()
     if one_user:
-        update_id = one_user.vk_id = vk_id
-        update_name = one_user.name = first_name
-        update_surname = one_user.surname = last_name
-        is_bot_user = one_user.is_bot_user = True
+        one_user.vk_id = vk_id
+        one_user.name = first_name
+        one_user.surname = last_name
+        one_user.gender_id = know_user_gender.ID
+        one_user.is_bot_user = True
         session.commit()
     else:
-        insert_like_bot_user = AllVkUsers(vk_id=vk_id, name=first_name, surname=last_name, is_bot_user=True)
+        know_user_gender = session.query(Gender).filter(gender == Gender.ID).first()
+        insert_like_bot_user = AllVkUsers(vk_id=vk_id, name=first_name, surname=last_name, is_bot_user=True,
+                                          gender_id=know_user_gender.ID)
         session.add(insert_like_bot_user)
         session.commit()
 
 
 if __name__ == "__main__":
-    insert_bot_user_to_vk_users(684385484, "Озод", "ochilov")
+    insert_bot_user_to_vk_users(684385484, "Озод", "ochilov", 1)
     # BASE.metadata.create_all(engine)
     # insert_into_gender()
     # insert_into_status()

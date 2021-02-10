@@ -43,18 +43,6 @@ def news_celtics():
     return some_list
 
 
-def know_username(users_id):
-    response = requests.get("https://vk.com/id" + str(users_id))
-    parsing = BeautifulSoup(response.text, "html.parser")
-    title = parsing.find("title")
-    splitname = ""
-    for i in title:
-        splitname = i.split()
-    name = splitname[0] + " " + splitname[1]
-
-    return name
-
-
 def parse_bot_user(vk_id):
     V = "5.126"
     API_BASE_URL = "https://api.vk.com/method/"
