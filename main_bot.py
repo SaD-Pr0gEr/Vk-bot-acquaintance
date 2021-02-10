@@ -55,10 +55,8 @@ class ServerBot:
     def searching(self):
         search = search_users(self.age_from, self.age_to, self.gender, self.town, self.state, self.country)
         for i in search:
-            # insert_into_searched_users(i['User_ID'], i["name"], i["town"], False, self.user_id)
             self.send_msg(self.user_id, f'{i["name"]}, {i["surname"]}ID: {i["User_ID"]}, '
                                         f'жил(-а) в городе(городах):{i["town"]}')
-            # self.send_msg(self.user_id, f"Нравится?) если да то пишите like если нет то пишите hate")
         self.state = STATUSES["commands"]
         self.send_msg(self.user_id, "Этот сеанс окончен и мы возвращаемся в состояние bot_commands")
         self.commands()
