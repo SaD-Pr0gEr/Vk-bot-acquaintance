@@ -124,12 +124,15 @@ def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
 
 
 def select_search_country(country):
-    search_country_from_db = session.query(County).filter(country == County.name).all()
-    print(search_country_from_db)
+    search_country_from_db = session.query(County).filter(country.capitalize() == County.name).first()
+    if search_country_from_db:
+        return search_country_from_db.name
+    else:
+        return False
 
 
 if __name__ == "__main__":
-    select_search_country("узбекистан")
+    select_search_country("россия")
     pass
     # insert_bot_user_to_vk_users(684385484, "Озод", "ochilov", 1)
     # insert_into_country()

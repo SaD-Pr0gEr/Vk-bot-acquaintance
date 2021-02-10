@@ -3,7 +3,7 @@ from random import randrange
 from vk_api.longpoll import VkLongPoll, VkEventType
 from config_keys import user_token as u_t, bots_token as b_t
 from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user
-from work_with_db_alchemy import insert_bot_user_to_vk_users
+from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country
 
 
 STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_age_to=4,
@@ -74,6 +74,16 @@ class ServerBot:
         self.state = STATUSES["commands"]
         self.commands()
 
+    def selecting(self):
+        searching = select_search_country(self.country)
+        if searching:
+            self.country = searching
+            self.state = STATUSES["choose_city_wait"]
+            self.send_msg(self.user_id, f"Вводите город поиска")
+        else:
+            self.send_msg(self.user_id, "Вы ввели неправильную страну")
+            self.state = STATUSES["choose_country_wait"]
+
     def talking(self):
         for event in self.long_poll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
@@ -101,10 +111,7 @@ class ServerBot:
                                       f"Вводите страну поиска Например Россия, Украина, Белорусия и т.д.\n")
 
                     elif self.state == STATUSES["choose_country_wait"]:
-
-                        self.state = STATUSES["choose_city_wait"]
-                        self.country = self.request
-                        self.send_msg(self.user_id, f"Вводите город поиска")
+                        pass
 
                     elif self.state == STATUSES["choose_city_wait"]:
                         self.town = self.request
