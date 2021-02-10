@@ -97,12 +97,12 @@ class SearchUsers(BASE):
 #     session.commit()
 
 
-def insert_into_country():
-    countrys = search_country_for_db()
-    for i in countrys:
-        add = County(ID=i["id"], name=i["title"])
-        session.add(add)
-    session.commit()
+# def insert_into_country():
+#     countrys = search_country_for_db()
+#     for i in countrys:
+#         add = County(ID=i["id"], name=i["title"])
+#         session.add(add)
+#     session.commit()
 
 
 def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
