@@ -123,22 +123,19 @@ def search_users(age_from, age_to, gender, town, status, country):
                                 "is_closed": False,
                                 "can_access_closed": False,
                                 "country": country,
-                                "fields": ["home_town, sex, country, city"],
+                                "fields": ["sex, country, city"],
                                 "count": 1000,
                                 "has_photo": 1
                             })
     # print(response.json())
     response_json = response.json()["response"]["items"]
-    # pprint(response_json)
-
     users = ({"name": i["first_name"], "surname": i["last_name"], "User_ID": i["id"],
-              "city": i["city"], "country": i["country"], "gender": i["sex"]} for i in
-             response_json if "city" in i and town.lower() in i["city"]["title"].lower() and "country" in i and
-             "status" in i)
+              "city": i["city"], "country": i["country"], "gender": i["sex"]} for i in response_json if "city" in i
+             and town.lower() in i["city"]["title"].lower() and "country" in i)
     return users
 
 
-# search_users(18, 20, 1, "ташкент", 1, 18)
+search_users(18, 20, 1, "ташкент", 1, 18)
 # get_token()
 # search_country("Узбекистан")
 
