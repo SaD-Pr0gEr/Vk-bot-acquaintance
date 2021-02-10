@@ -96,12 +96,22 @@ class SearchUsers(BASE):
 #     session.commit()
 
 
-def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender, status):
-    pass
+def insert_bot_user_to_vk_users(vk_id, first_name, last_name):
+    one_user = session.query(AllVkUsers).filter(vk_id == AllVkUsers.vk_id).first()
+    if one_user:
+        update_id = one_user.vk_id = vk_id
+        update_name = one_user.name = first_name
+        update_surname = one_user.surname = last_name
+        is_bot_user = one_user.is_bot_user = True
+        session.commit()
+    else:
+        insert_like_bot_user = AllVkUsers(vk_id=vk_id, name=first_name, surname=last_name, is_bot_user=True)
+        session.add(insert_like_bot_user)
+        session.commit()
 
 
 if __name__ == "__main__":
-    pass
+    insert_bot_user_to_vk_users(684385484, "Озод", "ochilov", 2, "JUST_PROGRAMMER")
     # BASE.metadata.create_all(engine)
     # insert_into_gender()
     # insert_into_status()
