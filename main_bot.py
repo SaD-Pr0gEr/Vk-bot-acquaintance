@@ -55,7 +55,7 @@ class ServerBot:
     def searching(self):
         search = search_users(self.age_from, self.age_to, self.gender, self.town, self.state, self.country)
         for i in search:
-            self.send_msg(self.user_id, f'{i["name"]}, {i["surname"]}ID: {i["User_ID"]}, '
+            self.send_msg(self.user_id, f'{i["name"]} {i["surname"]}, ID: {i["User_ID"]}, '
                                         f'жил(-а) в городе:{i["city"]["title"]} в стране: {i["country"]["title"]}')
         self.state = STATUSES["commands"]
         self.send_msg(self.user_id, "Этот сеанс окончен и мы возвращаемся в состояние bot_commands")
