@@ -24,7 +24,8 @@ class ServerBot:
         self.gender = 1
         self.age_from: int = 18
         self.age_to: int = 20
-        self.country = "узбекистан"
+        self.country_name = "узбекистан"
+        self.country_id = 0
         self.town = "ташкент"
         self.user_name = ""
         self.user_surname = ""
@@ -61,6 +62,27 @@ class ServerBot:
         self.send_msg(self.user_id, "Этот сеанс окончен и мы возвращаемся в состояние bot_commands")
         self.commands()
 
+    def selecting_country(self):
+        searching = select_search_country(self.country)
+        if searching:
+            self.country_id = searching["ID"]
+            self.country_name = searching["name"]
+            self.state = STATUSES["choose_city_wait"]
+            self.send_msg(self.user_id, f"Вводите город поиска")
+            return self.state
+        else:
+            self.send_msg(self.user_id, "Вы ввели неправильную страну")
+            self.state = STATUSES["choose_country_wait"]
+            return self.state
+
+    def selecting_city(self):
+        self.state = STATUSES["choose_gender"]
+        self.send_msg(self.user_id, f"вводите пол юзера:\n"
+                                    f"man - мужчина\n"
+                                    f"woman - женщина\n"
+                                    f"any - без разницы")
+        pass
+
     def news(self):
         for news in n_c():
             self.send_msg(self.user_id, news)
@@ -73,16 +95,6 @@ class ServerBot:
         self.send_msg(self.user_id, "Этот сеанс окончен и мы возвращаемся в состояние bot_commands")
         self.state = STATUSES["commands"]
         self.commands()
-
-    def selecting(self):
-        searching = select_search_country(self.country)
-        if searching:
-            self.country = searching
-            self.state = STATUSES["choose_city_wait"]
-            self.send_msg(self.user_id, f"Вводите город поиска")
-        else:
-            self.send_msg(self.user_id, "Вы ввели неправильную страну")
-            self.state = STATUSES["choose_country_wait"]
 
     def talking(self):
         for event in self.long_poll.listen():
@@ -111,15 +123,12 @@ class ServerBot:
                                       f"Вводите страну поиска Например Россия, Украина, Белорусия и т.д.\n")
 
                     elif self.state == STATUSES["choose_country_wait"]:
-                        pass
+                        self.country = self.request
+                        self.selecting_country()
 
                     elif self.state == STATUSES["choose_city_wait"]:
                         self.town = self.request
-                        self.state = STATUSES["choose_gender"]
-                        self.send_msg(self.user_id, f"вводите пол юзера:\n"
-                                                    f"man - мужчина\n"
-                                                    f"woman - женщина\n"
-                                                    f"any - без разницы")
+                        self.selecting_city()
 
                     elif self.request == "man" and self.state == STATUSES["choose_gender"]:
                         self.gender = 2

@@ -108,8 +108,7 @@ def search_country_for_db():
 
 
 def search_users(age_from, age_to, gender, town, status, country):
-    # country_id = search_country(country)
-    V = "5.89"
+    V = "5.126"
     API_BASE_URL = "https://api.vk.com/method/"
     link = urljoin(API_BASE_URL, "users.search")
     response = requests.get(link,
@@ -123,7 +122,7 @@ def search_users(age_from, age_to, gender, town, status, country):
                                 "v": V,
                                 "is_closed": False,
                                 "can_access_closed": False,
-                                # "country": country_id["country_id"],
+                                "country": country,
                                 "fields": ["home_town, sex, country, status, city"],
                                 "count": 1000,
                                 "has_photo": 1
@@ -136,11 +135,10 @@ def search_users(age_from, age_to, gender, town, status, country):
               "city": i["city"], "country": i["country"], "gender": i["sex"], "status": i["status"]} for i in
              response_json if "city" in i and town.lower() in i["city"]["title"].lower() and "country" in i and
              "status" in i)
-
     return users
 
 
-# search_users(18, 20, 1, "ташкент", 1, "узбекистан")
+# search_users(18, 20, 1, "ташкент", 1, 18)
 # get_token()
 # search_country("Узбекистан")
 
