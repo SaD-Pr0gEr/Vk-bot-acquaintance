@@ -101,6 +101,7 @@ class ServerBot:
                                       f"Вводите страну поиска Например Россия, Украина, Белорусия и т.д.\n")
 
                     elif self.state == STATUSES["choose_country_wait"]:
+
                         self.state = STATUSES["choose_city_wait"]
                         self.country = self.request
                         self.send_msg(self.user_id, f"Вводите город поиска")
