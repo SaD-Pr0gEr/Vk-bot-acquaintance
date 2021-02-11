@@ -3,7 +3,7 @@ from random import randrange
 from vk_api.longpoll import VkLongPoll, VkEventType
 from config_keys import user_token as u_t, bots_token as b_t
 from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user
-from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country
+from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, check_town, insert_search_params
 
 
 STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_age_to=4,
@@ -91,6 +91,9 @@ class ServerBot:
 
     def got_it(self):
         self.state = STATUSES["got_it"]
+        checking_town = check_town(self.town_id, self.town)
+        inserting_params = insert_search_params(self.user_id, self.age_from, self.age_to, self.status,
+                                                self.town_id, self.country_id, self.gender)
         self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
                                     f'Минимальный возраст: {self.age_from},\n'
                                     f'Максимальный возраст: {self.age_to},\n'
