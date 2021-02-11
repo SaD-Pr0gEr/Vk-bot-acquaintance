@@ -157,15 +157,15 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
                                                            SearchParams.status == new_status_param.ID,
                                                            SearchParams.town == town_id,
                                                            SearchParams.country == select_country.ID,
-                                                           SearchParams.gender == select_gender.ID))
+                                                           SearchParams.gender == select_gender.ID)).first()
     if check_params:
-        SearchParams.search_owner_id = vk_id
-        SearchParams.age_from = age_from_param
-        SearchParams.age_to = age_to_param
-        SearchParams.status = new_status_param.ID
-        SearchParams.town = town_id
-        SearchParams.country = select_country.ID
-        SearchParams.gender = select_gender.ID
+        check_params.search_owner_id = vk_id
+        check_params.age_from = age_from_param
+        check_params.age_to = age_to_param
+        check_params.status = new_status_param.ID
+        check_params.town = town_id
+        check_params.country = select_country.ID
+        check_params.gender = select_gender.ID
         session.commit()
     else:
         add_params = SearchParams(search_owner_id=vk_id, age_from=age_from_param, age_to=age_to_param,
@@ -176,8 +176,8 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
 
 
 if __name__ == "__main__":
-    check_town(19, "chirchik")
-    insert_search_params(616586034, 232, 343, 3, 19, 1, 1)
+    check_town(20, "chirchik")
+    insert_search_params(616586034, 232, 343, 3, 20, 1, 1)
     # insert_bot_user_to_vk_users(616586034, "Озод", "ochilov", 1)
     # insert_into_country()
     # BASE.metadata.create_all(engine)
