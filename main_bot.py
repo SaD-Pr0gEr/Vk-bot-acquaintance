@@ -91,9 +91,8 @@ class ServerBot:
 
     def got_it(self):
         self.state = STATUSES["got_it"]
-        checking_town = check_town(self.town_id, self.town)
         inserting_params = insert_search_params(self.user_id, self.age_from, self.age_to, self.status,
-                                                self.town_id, self.country_id, self.gender)
+                                                self.town, self.country_id, self.gender)
         self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
                                     f'Минимальный возраст: {self.age_from},\n'
                                     f'Максимальный возраст: {self.age_to},\n'

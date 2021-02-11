@@ -61,7 +61,7 @@ class SearchParams(BASE):
     age_from = Column(Integer)
     age_to = Column(Integer)
     status = Column(Integer, ForeignKey("user_status.ID"))
-    town = Column(Integer, ForeignKey("user_town.ID"))
+    town = Column(String(255))
     country = Column(Integer, ForeignKey("user_country.ID"))
     gender = Column(Integer, ForeignKey("user_gender.ID"))
 
@@ -147,7 +147,7 @@ def check_town(town_id, town_name):
         session.commit()
 
 
-def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town_id, country_id, gender_id):
+def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town_name, country_id, gender_id):
     new_status_param = session.query(Status).filter(status_param == Status.ID).first()
     select_country = session.query(County).filter(country_id == County.ID).first()
     select_gender = session.query(Gender).filter(gender_id == Gender.ID).first()
@@ -155,7 +155,7 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
                                                            SearchParams.age_from == age_from_param,
                                                            SearchParams.age_to == age_to_param,
                                                            SearchParams.status == new_status_param.ID,
-                                                           SearchParams.town == town_id,
+                                                           SearchParams.town == town_name,
                                                            SearchParams.country == select_country.ID,
                                                            SearchParams.gender == select_gender.ID)).first()
     if check_params:
@@ -163,21 +163,21 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
         check_params.age_from = age_from_param
         check_params.age_to = age_to_param
         check_params.status = new_status_param.ID
-        check_params.town = town_id
+        check_params.town = town_name
         check_params.country = select_country.ID
         check_params.gender = select_gender.ID
         session.commit()
     else:
         add_params = SearchParams(search_owner_id=vk_id, age_from=age_from_param, age_to=age_to_param,
                                   status=new_status_param.ID,
-                                  town=town_id, country=select_country.ID, gender=select_gender.ID)
+                                  town=town_name, country=select_country.ID, gender=select_gender.ID)
         session.add(add_params)
         session.commit()
 
 
 if __name__ == "__main__":
-    check_town(20, "chirchik")
-    insert_search_params(616586034, 232, 343, 3, 20, 1, 1)
+    # check_town(20, "chirchik")
+    # insert_search_params(616586034, 232, 343, 3, 20, 1, 1)
     # insert_bot_user_to_vk_users(616586034, "Озод", "ochilov", 1)
     # insert_into_country()
     # BASE.metadata.create_all(engine)
