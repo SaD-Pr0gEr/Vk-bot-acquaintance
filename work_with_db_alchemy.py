@@ -134,11 +134,8 @@ def select_search_country(country):
         return False
 
 
-def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town_id, town_name, country_id, gender_id):
-    new_status_param = session.query(Status).filter(status_param == Status.ID).first()
+def check_town(town_id, town_name):
     new_town = session.query(Town).filter(town_id == Town.ID).first()
-    select_country = session.query(County).filter(country_id == County.ID).first()
-    select_gender = session.query(Gender).filter(gender_id == Gender.ID).first()
     if new_town:
         Town.ID = new_town.ID
         Town.name = new_town.name
@@ -149,32 +146,38 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
         session.add(add_town)
         session.commit()
 
+
+def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town_id, country_id, gender_id):
+    new_status_param = session.query(Status).filter(status_param == Status.ID).first()
+    select_country = session.query(County).filter(country_id == County.ID).first()
+    select_gender = session.query(Gender).filter(gender_id == Gender.ID).first()
     check_params = session.query(SearchParams).filter(and_(SearchParams.search_owner_id == vk_id,
                                                            SearchParams.age_from == age_from_param,
                                                            SearchParams.age_to == age_to_param,
                                                            SearchParams.status == new_status_param.ID,
-                                                           SearchParams.town == new_town.ID,
+                                                           SearchParams.town == town_id,
                                                            SearchParams.country == select_country.ID,
                                                            SearchParams.gender == select_gender.ID))
     if check_params:
-        check_params.search_owner_id = vk_id
-        check_params.age_from = age_from_param
-        check_params.age_to = age_to_param
-        check_params.status = new_status_param.ID
-        check_params.town = new_town.ID
-        check_params.country = select_country.ID
-        check_params.gender = select_gender.ID
+        SearchParams.search_owner_id = vk_id
+        SearchParams.age_from = age_from_param
+        SearchParams.age_to = age_to_param
+        SearchParams.status = new_status_param.ID
+        SearchParams.town = town_id
+        SearchParams.country = select_country.ID
+        SearchParams.gender = select_gender.ID
         session.commit()
     else:
         add_params = SearchParams(search_owner_id=vk_id, age_from=age_from_param, age_to=age_to_param,
                                   status=new_status_param.ID,
-                                  town=new_town.ID, country=select_country.ID, gender=select_gender.ID)
+                                  town=town_id, country=select_country.ID, gender=select_gender.ID)
         session.add(add_params)
         session.commit()
 
 
 if __name__ == "__main__":
-    insert_search_params(616586034, 232, 343, 3, 19, "chirchik", 1, 2)
+    check_town(19, "chirchik")
+    insert_search_params(616586034, 232, 343, 3, 19, 1, 1)
     # insert_bot_user_to_vk_users(616586034, "Озод", "ochilov", 1)
     # insert_into_country()
     # BASE.metadata.create_all(engine)
