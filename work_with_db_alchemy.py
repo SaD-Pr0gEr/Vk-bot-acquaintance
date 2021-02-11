@@ -116,7 +116,6 @@ def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
         one_user.is_bot_user = True
         session.commit()
     else:
-        know_user_gender = session.query(Gender).filter(gender == Gender.ID).first()
         insert_like_bot_user = AllVkUsers(vk_id=vk_id, name=first_name, surname=last_name, is_bot_user=True,
                                           gender_id=know_user_gender.ID)
         session.add(insert_like_bot_user)
@@ -172,6 +171,29 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
                                   status=new_status_param.ID,
                                   town=town_name, country=select_country.ID, gender=select_gender.ID)
         session.add(add_params)
+        session.commit()
+
+
+def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, user_gender_id, user_country_id,
+                                          user_town_id, user_town_title, user_status_id):
+    one_user = session.query(AllVkUsers).filter(user_vk_id == AllVkUsers.vk_id).first()
+    know_gender = session.query(Gender).filter(user_gender_id == Gender.ID).first()
+    know_country = session.query(County).filter(user_country_id == County.ID).first()
+    check_town(user_town_id, user_town_title)
+    know_town = session.query(Town).filter(user_town_id == Town.ID).first()
+    know_status = session.query(Status).filter(user_status_id == Status.ID).first()
+    if one_user:
+        one_user.vk_id = user_vk_id
+        one_user.name = user_name
+        one_user.surname = user_surname
+        one_user.gender_id = know_gender.ID
+        one_user.country_id = know_country.ID
+        one_user.town_id = know_town.ID
+        one_user.status_id = know_status.ID
+    else:
+        add = AllVkUsers(vk_id=user_vk_id, name=user_name, surname=user_surname, gender_id=know_gender.ID,
+                         country_id=know_country.ID, town_id=know_town.ID, status_id=know_status.ID)
+        session.add(add)
         session.commit()
 
 

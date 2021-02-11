@@ -3,8 +3,8 @@ from random import randrange
 from vk_api.longpoll import VkLongPoll, VkEventType
 from config_keys import user_token as u_t, bots_token as b_t
 from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user
-from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, check_town, insert_search_params
-
+from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, check_town, insert_search_params, \
+    insert_searched_users_to_all_vk_users
 
 STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_age_to=4,
                 choose_status=5, news=6, history=7, got_it=8,
@@ -57,8 +57,15 @@ class ServerBot:
     def searching(self):
         search = search_users(self.age_from, self.age_to, self.gender, self.town, self.state, self.country_id)
         for i in search:
-            self.send_msg(self.user_id, f'{i["name"]} {i["surname"]}, ID: {i["User_ID"]},'
-                                        f'жил(-а) в городе:{i["city"]["title"]} в стране: {i["country"]["title"]}')
+            username = i["name"]
+            surname = i["surname"]
+            vk_id = i["User_ID"]
+            city_id = i["city"]["id"]
+            city_title = i["city"]["title"]
+            country_id = i["country"]["id"]
+            gender_id = i["gender"]
+            insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id, city_id, city_title,
+                                                  self.status)
         self.state = STATUSES["commands"]
         self.send_msg(self.user_id, "Этот сеанс окончен и мы возвращаемся в состояние bot_commands")
         self.commands()
