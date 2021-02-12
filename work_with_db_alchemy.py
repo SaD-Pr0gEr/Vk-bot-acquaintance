@@ -150,13 +150,8 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
     new_status_param = session.query(Status).filter(status_param == Status.ID).first()
     select_country = session.query(County).filter(country_id == County.ID).first()
     select_gender = session.query(Gender).filter(gender_id == Gender.ID).first()
-    check_params = session.query(SearchParams).filter(and_(SearchParams.search_owner_id == vk_id,
-                                                           SearchParams.age_from == age_from_param,
-                                                           SearchParams.age_to == age_to_param,
-                                                           SearchParams.status == new_status_param.ID,
-                                                           SearchParams.town == town_name,
-                                                           SearchParams.country == select_country.ID,
-                                                           SearchParams.gender == select_gender.ID)).first()
+    check_params = session.query(SearchParams).filter(SearchParams.search_owner_id == vk_id,
+                                                      ).first()
     if check_params:
         check_params.search_owner_id = vk_id
         check_params.age_from = age_from_param
@@ -174,8 +169,8 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
         session.commit()
 
 
-def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, user_gender_id, user_country_id,
-                                          user_town_id, user_town_title, user_status_id):
+def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, user_gender_id,
+                                          user_country_id, user_town_id, user_town_title, user_status_id):
     one_user = session.query(AllVkUsers).filter(user_vk_id == AllVkUsers.vk_id).first()
     know_gender = session.query(Gender).filter(user_gender_id == Gender.ID).first()
     know_country = session.query(County).filter(user_country_id == County.ID).first()
@@ -197,7 +192,49 @@ def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, u
         session.commit()
 
 
+def insert_searched_users(bot_user_vk_id, searched_user_vk_id):
+    check_users_from_params = session.query(SearchParams).filter(bot_user_vk_id == SearchParams.search_owner_id).first()
+    check_users_from_all_users = session.query(AllVkUsers).filter(searched_user_vk_id == AllVkUsers.vk_id).first()
+    add = SearchUsers(search_params_id=check_users_from_params.ID, found_result_vk_id=check_users_from_all_users.vk_id)
+    session.add(add)
+    session.commit()
+
+
+def select_searched_users_for_bot_users(bot_user_vk_id):
+    check_users_from_params = session.query(SearchParams).filter(bot_user_vk_id == SearchParams.search_owner_id).first()
+    check_users_from_found_result = session.query(SearchUsers).filter(
+        SearchUsers.search_params_id == check_users_from_params.ID
+    ).all()
+    return check_users_from_found_result
+
+
+def set_like_status_and_show_status(searched_user_id):
+    set_user = session.query(SearchUsers).filter(searched_user_id == SearchUsers.found_result_vk_id).first()
+    return set_user
+
+# def some():
+#     lists = [1, 2, 3, 4, 5]
+#     for i in range(len(lists)):
+#         print(i)
+#         a = input("some")
+#         if a == "1":
+#             print("good")
+#         else:
+#             print("no")
+    # while lists:
+    #     print(lists[index])
+    #     res = input("some:")
+    #     if res == "1":
+    #         index += 1
+    #     elif res == "1" and index == end:
+    #         print("end")
+    #     else:
+    #         index = index
+    #         print("again")
+
+
 if __name__ == "__main__":
+    # insert_searched_users_to_all_vk_users(143142, 616586034, "ozod", "ochilov", 1, 18, 56, "chirchik", 4)
     # check_town(20, "chirchik")
     # insert_search_params(616586034, 232, 343, 3, 20, 1, 1)
     # insert_bot_user_to_vk_users(616586034, "Озод", "ochilov", 1)
@@ -206,3 +243,4 @@ if __name__ == "__main__":
     # insert_into_gender()
     # insert_into_status()
     pass
+

@@ -3,12 +3,13 @@ from random import randrange
 from vk_api.longpoll import VkLongPoll, VkEventType
 from config_keys import user_token as u_t, bots_token as b_t
 from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user
-from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, check_town, insert_search_params, \
-    insert_searched_users_to_all_vk_users
+from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, insert_search_params, \
+    insert_searched_users_to_all_vk_users, select_searched_users_for_bot_users, insert_searched_users
 
 STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_age_to=4,
                 choose_status=5, news=6, history=7, got_it=8,
-                choose_country_wait=9, choose_city_wait=10, wait_database=11,
+                choose_country_wait=9, choose_city_wait=10, wait_database=11, like_wait=12,
+                select_users=13
                 )
 
 
@@ -64,11 +65,11 @@ class ServerBot:
             city_title = i["city"]["title"]
             country_id = i["country"]["id"]
             gender_id = i["gender"]
-            insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id, city_id, city_title,
-                                                  self.status)
-        self.state = STATUSES["commands"]
-        self.send_msg(self.user_id, "Этот сеанс окончен и мы возвращаемся в состояние bot_commands")
-        self.commands()
+            insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id, city_id,
+                                                  city_title, self.status)
+            insert_searched_users(self.user_id, vk_id)
+        self.state = STATUSES["select_users"]
+        return search
 
     def selecting_country(self):
         searching = select_search_country(self.country_name)
@@ -98,8 +99,6 @@ class ServerBot:
 
     def got_it(self):
         self.state = STATUSES["got_it"]
-        inserting_params = insert_search_params(self.user_id, self.age_from, self.age_to, self.status,
-                                                self.town, self.country_id, self.gender)
         self.send_msg(self.user_id, f'Параметры поиска вашей половинки:\n'
                                     f'Минимальный возраст: {self.age_from},\n'
                                     f'Максимальный возраст: {self.age_to},\n'
@@ -110,6 +109,16 @@ class ServerBot:
                                     f'Хотите начать?\n'
                                     f'пишите да или нет')
         return self.state
+
+    def show_searched_users(self, bot_user_vk_id):
+        self.searching()
+        give_found_result = select_searched_users_for_bot_users(bot_user_vk_id)
+        for i in give_found_result:
+            print(i)
+            self.state = STATUSES[""]
+        self.send_msg(self.user_id, "over!")
+        self.state = STATUSES["commands"]
+        self.commands()
 
     def talking(self):
         for event in self.long_poll.listen():
@@ -222,12 +231,17 @@ class ServerBot:
                         self.got_it()
 
                     elif self.state == STATUSES["got_it"] and self.request == "да":
-                        self.searching()
+                        insert_search_params(self.user_id, self.age_from, self.age_to, self.status,
+                                             self.town, self.country_id, self.gender)
+                        self.show_searched_users(self.user_id)
 
                     elif self.state == STATUSES["got_it"] and self.request == "нет":
                         self.send_msg(self.user_id, f"Вы выбрали команду нет поэтому мы возвращаемся в состояние hello")
                         self.state = STATUSES["hello"]
                         self.hello()
+
+                    elif self.state == STATUSES["select_users"]:
+                        self.show_searched_users(self.user_id)
 
                     elif self.request == "news" and self.state == STATUSES["commands"]:
                         self.news()
