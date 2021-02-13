@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, and_, Boolean, null
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, and_, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config_keys import owner_db, db_name, db_password
@@ -73,7 +73,7 @@ class SearchUsers(BASE):
     search_params_id = Column(Integer, ForeignKey("search_params.ID"))
     found_result_vk_id = Column(Integer, ForeignKey("all_vk_users.vk_id"))
     is_shown = Column(Boolean, default=False)
-    liked_status = Column(Boolean, default=null)
+    liked_status = Column(Boolean, nullable=True)
 
 
 def insert_into_gender():
@@ -136,14 +136,16 @@ def select_search_country(country):
 def check_town(town_id, town_name):
     new_town = session.query(Town).filter(town_id == Town.ID).first()
     if new_town:
-        Town.ID = new_town.ID
-        Town.name = new_town.name
+        new_town.ID = town_id
+        new_town.name = town_name
         session.commit()
+        return new_town
 
     else:
         add_town = Town(ID=town_id, name=town_name)
         session.add(add_town)
         session.commit()
+        return add_town
 
 
 def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town_name, country_id, gender_id):
@@ -185,56 +187,59 @@ def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, u
         one_user.country_id = know_country.ID
         one_user.town_id = know_town.ID
         one_user.status_id = know_status.ID
+        session.commit()
     else:
         add = AllVkUsers(vk_id=user_vk_id, name=user_name, surname=user_surname, gender_id=know_gender.ID,
                          country_id=know_country.ID, town_id=know_town.ID, status_id=know_status.ID)
         session.add(add)
-        session.commit()
+    session.commit()
 
 
 def insert_searched_users(bot_user_vk_id, searched_user_vk_id):
     check_users_from_params = session.query(SearchParams).filter(bot_user_vk_id == SearchParams.search_owner_id).first()
     check_users_from_all_users = session.query(AllVkUsers).filter(searched_user_vk_id == AllVkUsers.vk_id).first()
-    add = SearchUsers(search_params_id=check_users_from_params.ID, found_result_vk_id=check_users_from_all_users.vk_id)
-    session.add(add)
-    session.commit()
+    check_user_in = session.query(SearchUsers).filter(SearchUsers.found_result_vk_id == searched_user_vk_id).first()
+    if check_user_in:
+        check_user_in.found_result_vk_id = check_users_from_all_users.vk_id
+        check_user_in.search_params_id = check_users_from_params.ID
+        session.commit()
+    else:
+        add = SearchUsers(search_params_id=check_users_from_params.ID, found_result_vk_id=check_users_from_all_users.vk_id)
+        session.add(add)
+        session.commit()
 
 
 def select_searched_users_for_bot_users(bot_user_vk_id):
     check_users_from_params = session.query(SearchParams).filter(bot_user_vk_id == SearchParams.search_owner_id).first()
+    check_users_from_found_result = session.query(SearchUsers).filter(
+        check_users_from_params.ID == SearchUsers.search_params_id
+    ).first()
+    return check_users_from_found_result
+
+
+def set_like_status_and_show_status(searched_user_id):
+    set_user = session.query(SearchUsers).filter(searched_user_id == SearchUsers.found_result_vk_id).first()
+    set_user.is_shown = True
+    set_user.liked_status = True
+    session.commit()
+
+
+def set_hate_status_and_show_status(searched_user_id):
+    set_user = session.query(SearchUsers).filter(searched_user_id == SearchUsers.found_result_vk_id).first()
+    set_user.is_shown = True
+    set_user.liked_status = False
+    session.commit()
+
+
+def select_to_user_all_liked_users(owner_vk_id):
+    check_users_from_params = session.query(SearchParams).filter(owner_vk_id == SearchParams.search_owner_id).first()
     check_users_from_found_result = session.query(SearchUsers).filter(
         SearchUsers.search_params_id == check_users_from_params.ID
     ).all()
     return check_users_from_found_result
 
 
-def set_like_status_and_show_status(searched_user_id):
-    set_user = session.query(SearchUsers).filter(searched_user_id == SearchUsers.found_result_vk_id).first()
-    return set_user
-
-# def some():
-#     lists = [1, 2, 3, 4, 5]
-#     for i in range(len(lists)):
-#         print(i)
-#         a = input("some")
-#         if a == "1":
-#             print("good")
-#         else:
-#             print("no")
-    # while lists:
-    #     print(lists[index])
-    #     res = input("some:")
-    #     if res == "1":
-    #         index += 1
-    #     elif res == "1" and index == end:
-    #         print("end")
-    #     else:
-    #         index = index
-    #         print("again")
-
-
 if __name__ == "__main__":
-    # insert_searched_users_to_all_vk_users(143142, 616586034, "ozod", "ochilov", 1, 18, 56, "chirchik", 4)
     # check_town(20, "chirchik")
     # insert_search_params(616586034, 232, 343, 3, 20, 1, 1)
     # insert_bot_user_to_vk_users(616586034, "Озод", "ochilov", 1)
@@ -242,5 +247,8 @@ if __name__ == "__main__":
     # BASE.metadata.create_all(engine)
     # insert_into_gender()
     # insert_into_status()
+    # select_searched_users_for_bot_users(616586034)
+    # insert_searched_users(616586034, 99642131)
+    # set_like_status_and_show_status(99642131)
     pass
 

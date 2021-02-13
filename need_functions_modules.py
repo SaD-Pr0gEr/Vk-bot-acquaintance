@@ -132,6 +132,8 @@ def search_users(age_from, age_to, gender, town, status, country):
     users = ({"name": i["first_name"], "surname": i["last_name"], "User_ID": i["id"],
               "city": i["city"], "country": i["country"], "gender": i["sex"]} for i in response_json if "city" in i
              and town.lower() in i["city"]["title"].lower() and "country" in i)
+    # for i in users:
+    #     print(i)
     return users
 
 

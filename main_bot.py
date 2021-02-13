@@ -4,12 +4,13 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 from config_keys import user_token as u_t, bots_token as b_t
 from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user
 from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, insert_search_params, \
-    insert_searched_users_to_all_vk_users, select_searched_users_for_bot_users, insert_searched_users
+    insert_searched_users_to_all_vk_users, select_searched_users_for_bot_users, insert_searched_users, \
+    set_like_status_and_show_status, set_hate_status_and_show_status
 
 STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_age_to=4,
                 choose_status=5, news=6, history=7, got_it=8,
                 choose_country_wait=9, choose_city_wait=10, wait_database=11, like_wait=12,
-                select_users=13
+                select_users=13, wait_like=14
                 )
 
 
@@ -26,13 +27,14 @@ class ServerBot:
         self.age_from: int = 18
         self.age_to: int = 20
         self.country_name = "узбекистан"
-        self.country_id = 0
+        self.country_id = 18
         self.town = "ташкент"
         self.town_id = 0
         self.user_name = ""
         self.user_surname = ""
         self.user_gender = ""
         self.gender_text = ""
+        self.give_found_result = ""
 
     def send_msg(self, user_id, message):
         self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7)})
@@ -56,7 +58,7 @@ class ServerBot:
                              f"History: История команды Boston Celtics и прочие материалы")
 
     def searching(self):
-        search = search_users(self.age_from, self.age_to, self.gender, self.town, self.state, self.country_id)
+        search = search_users(self.age_from, self.age_to, self.gender, self.town, self.status, self.country_id)
         for i in search:
             username = i["name"]
             surname = i["surname"]
@@ -65,9 +67,10 @@ class ServerBot:
             city_title = i["city"]["title"]
             country_id = i["country"]["id"]
             gender_id = i["gender"]
+            # print(city_id, city_title, country_id, gender_id)
             insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id, city_id,
                                                   city_title, self.status)
-            insert_searched_users(self.user_id, vk_id)
+            # insert_searched_users(self.user_id, vk_id)
         self.state = STATUSES["select_users"]
         return search
 
@@ -110,15 +113,13 @@ class ServerBot:
                                     f'пишите да или нет')
         return self.state
 
-    def show_searched_users(self, bot_user_vk_id):
-        self.searching()
-        give_found_result = select_searched_users_for_bot_users(bot_user_vk_id)
-        for i in give_found_result:
-            print(i)
-            self.state = STATUSES[""]
-        self.send_msg(self.user_id, "over!")
-        self.state = STATUSES["commands"]
-        self.commands()
+    # def show_searched_users(self, bot_user_vk_id):
+    #     self.searching()
+    #     give_found_result = select_searched_users_for_bot_users(bot_user_vk_id)
+    #     self.send_msg(self.user_id, give_found_result)
+    #     self.send_msg(self.user_id, "over!")
+    #     self.state = STATUSES["commands"]
+    #     self.commands()
 
     def talking(self):
         for event in self.long_poll.listen():
@@ -233,15 +234,30 @@ class ServerBot:
                     elif self.state == STATUSES["got_it"] and self.request == "да":
                         insert_search_params(self.user_id, self.age_from, self.age_to, self.status,
                                              self.town, self.country_id, self.gender)
-                        self.show_searched_users(self.user_id)
+                        self.state = STATUSES["wait_like"]
+                        self.searching()
+                        self.give_found_result = select_searched_users_for_bot_users(self.user_id)
+                        # print(self.give_found_result)
+                        self.send_msg(self.user_id, self.give_found_result.found_result_vk_id.ID)
+                        self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate\n")
 
                     elif self.state == STATUSES["got_it"] and self.request == "нет":
                         self.send_msg(self.user_id, f"Вы выбрали команду нет поэтому мы возвращаемся в состояние hello")
                         self.state = STATUSES["hello"]
                         self.hello()
 
-                    elif self.state == STATUSES["select_users"]:
-                        self.show_searched_users(self.user_id)
+                    # elif self.state == STATUSES["select_users"]:
+                    #     self.state = STATUSES["wait_like"]
+                    #     self.searching()
+                    #     self.give_found_result = select_searched_users_for_bot_users(self.user_id)
+                    #     self.send_msg(self.user_id, self.give_found_result.found_result_vk_id)
+                    #     self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate\n")
+
+                    elif self.state == STATUSES["wait_like"] and self.request == "like":
+                        set_like_status_and_show_status(self.give_found_result.found_result_vk_id)
+
+                    elif self.state == STATUSES["wait_like"] and self.request == "hate":
+                        set_hate_status_and_show_status(self.give_found_result.found_result_vk_id)
 
                     elif self.request == "news" and self.state == STATUSES["commands"]:
                         self.news()
@@ -259,3 +275,4 @@ class ServerBot:
 if __name__ == "__main__":
     some_user = ServerBot(u_t, b_t)
     some_user.talking()
+    # some_user.searching()
