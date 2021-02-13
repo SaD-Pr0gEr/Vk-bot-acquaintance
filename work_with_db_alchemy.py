@@ -192,7 +192,7 @@ def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, u
         add = AllVkUsers(vk_id=user_vk_id, name=user_name, surname=user_surname, gender_id=know_gender.ID,
                          country_id=know_country.ID, town_id=know_town.ID, status_id=know_status.ID)
         session.add(add)
-    session.commit()
+        session.commit()
 
 
 def insert_searched_users(bot_user_vk_id, searched_user_vk_id):
@@ -247,6 +247,7 @@ if __name__ == "__main__":
     # BASE.metadata.create_all(engine)
     # insert_into_gender()
     # insert_into_status()
+    # insert_searched_users_to_all_vk_users(10000, "ozod", "ochilov", 1, 18, 233, "tashkent", 1)
     # select_searched_users_for_bot_users(616586034)
     # insert_searched_users(616586034, 99642131)
     # set_like_status_and_show_status(99642131)

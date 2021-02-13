@@ -70,7 +70,7 @@ class ServerBot:
             # print(city_id, city_title, country_id, gender_id)
             insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id, city_id,
                                                   city_title, self.status)
-            # insert_searched_users(self.user_id, vk_id)
+            insert_searched_users(self.user_id, vk_id)
         self.state = STATUSES["select_users"]
         return search
 
@@ -238,7 +238,7 @@ class ServerBot:
                         self.searching()
                         self.give_found_result = select_searched_users_for_bot_users(self.user_id)
                         # print(self.give_found_result)
-                        self.send_msg(self.user_id, self.give_found_result.found_result_vk_id.ID)
+                        self.send_msg(self.user_id, self.give_found_result.found_result_vk_id)
                         self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate\n")
 
                     elif self.state == STATUSES["got_it"] and self.request == "нет":
