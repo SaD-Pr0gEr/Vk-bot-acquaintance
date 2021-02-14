@@ -77,21 +77,27 @@ def get_photos(owner_user_id):
             "extended": 1,
             "owner_id": owner_user_id,
             "photo_sizes": 1,
+            "count": 1000
         },
     )
     res_json = res.json()["response"]["items"]
     likes_nums = sorted(list({like_photo["likes"]["count"] for like_photo in res_json}))
     likes_list = likes_nums[-3:]
-    top_photos = {photo["likes"]["count"]: photo["sizes"][0]["url"] for photo in res_json if
-                  photo["likes"]["count"] in likes_list}
+    som = []
+    some_dict = {}
+    for photo in res_json:
+        if photo["likes"]["count"] in likes_list:
+            dicts = {"likes": photo["likes"]["count"], "link": photo["sizes"][0]["url"]}
+            som.append(dicts)
+    # top_photos = ({"like": photo["likes"]["count"], "link": photo["sizes"][0]["url"]} for photo in res_json if
+    #               photo["likes"]["count"] in likes_list)
     # self.send_msg(user_id, f"Топ 3 фотографии юзера:\n")
     # for like, like_link in get_photos(user_id).items():
     #     self.send_msg(user_id, f'{like} - {like_link}')
-    # print(top_photos)
-    return top_photos
-#
-#
-# get_photos(447507760)
+    return som
+
+
+get_photos(195253250)
 
 
 def search_country_for_db():
@@ -123,24 +129,23 @@ def search_users(age_from, age_to, gender, town, status, country):
                                 "sex": gender,
                                 "status": status,
                                 "v": V,
-                                "is_closed": False,
-                                "can_access_closed": True,
                                 "country": country,
-                                "fields": ["sex, country, city"],
+                                "fields": ["sex, country, city, is_closed, can_access_closed"],
                                 "count": 1000,
                                 "has_photo": 1
                             })
-    # print(response.json())
     response_json = response.json()["response"]["items"]
     users = ({"name": i["first_name"], "surname": i["last_name"], "User_ID": i["id"],
-              "city": i["city"], "country": i["country"], "gender": i["sex"]} for i in response_json if "city" in i
-             and town.lower() in i["city"]["title"].lower() and "country" in i)
+              "city": i["city"], "country": i["country"], "gender": i["sex"], "is_closed": i["is_closed"]}
+             for i in response_json if "city" in i and town.lower() in i["city"]["title"].lower() and "country" in i
+             and 'is_closed' in i and i['is_closed'] is False)
     # for i in users:
     #     print(i)
+    #     print(i["can_access_closed"])
     return users
 
 
-# search_users(18, 20, 1, "москва", 1, 1)
+search_users(18, 20, 1, "москва", 1, 1)
 # get_token()
 # search_country("Узбекистан")
 

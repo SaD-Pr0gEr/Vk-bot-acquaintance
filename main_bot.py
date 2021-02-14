@@ -2,7 +2,8 @@ import vk_api
 from random import randrange
 from vk_api.longpoll import VkLongPoll, VkEventType
 from config_keys import user_token as u_t, bots_token as b_t
-from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user
+from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user, \
+    get_photos
 from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, insert_search_params, \
     insert_searched_users_to_all_vk_users, select_searched_users_for_bot_users, insert_searched_users, \
     set_like_status_and_show_status, set_hate_status_and_show_status, select_to_user_all_hated_users, \
@@ -117,6 +118,10 @@ class ServerBot:
     def show_searched_users(self):
         self.give_found_result = select_searched_users_for_bot_users(self.user_id)
         self.send_msg(self.user_id, f"vk.com/id{self.give_found_result.found_result_vk_id}")
+        photos = get_photos(self.give_found_result.found_result_vk_id)
+        self.send_msg(self.user_id, "Топ 3 фотографии юзера:\n ")
+        for a in photos:
+            self.send_msg(self.user_id, a['link'])
         self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate! для выхода пишите quit\n")
         self.state = STATUSES["wait_like"]
         return self.give_found_result
@@ -125,6 +130,8 @@ class ServerBot:
         liked_users = select_to_user_all_liked_users(self.user_id)
         for i in liked_users:
             self.send_msg(self.user_id, f"vk.com/id{i.found_result_vk_id}")
+            photos = get_photos(i.found_result_vk_id)
+            self.send_msg(self.user_id, f"Топ 3 фотографии юзера:\n {photos['link']}")
         self.send_msg(self.user_id, "Этот сеанс окончен и мы вернёмся в состояние Commands")
         self.state = STATUSES["commands"]
         self.commands()
@@ -133,6 +140,8 @@ class ServerBot:
         hated_users = select_to_user_all_hated_users(self.user_id)
         for i in hated_users:
             self.send_msg(self.user_id, f"vk.com/id{i.found_result_vk_id}")
+            photos = get_photos(i.found_result_vk_id)
+            self.send_msg(self.user_id, f"Топ 3 фотографии юзера:\n {photos['link']}")
         self.send_msg(self.user_id, "Этот сеанс окончен и мы вернёмся в состояние Commands")
         self.state = STATUSES["commands"]
         self.commands()
@@ -148,7 +157,12 @@ class ServerBot:
                     if self.request == "привет" and self.state == STATUSES["hello"]:
                         self.hello()
 
+                    elif self.request == "привет" and self.state == STATUSES["commands"]:
+                        self.send_msg(self.user_id, f"Мы же уже поздаровались) давай лучше выбери команду)\n")
+                        self.commands()
+
                     elif self.request == "bot_commands" and self.state == STATUSES["commands"]:
+                        self.state = STATUSES["commands"]
                         self.commands()
 
                     elif self.request == "search_users" and self.state == STATUSES["commands"]:
@@ -196,13 +210,13 @@ class ServerBot:
                         self.send_msg(self.user_id, f"Вводите минимальный возраст пользователя "
                                                     f"от 10 до 100")
 
-                    elif self.state == STATUSES["choose_age_from"]:
+                    elif self.state == STATUSES["choose_age_from"] and int(self.request) in range(100):
                         self.state = STATUSES["choose_age_to"]
                         self.age_from = self.request
                         self.send_msg(self.user_id, f"Вводите максимальный возраст пользователя"
                                                     f" и оно не должно быть меньше минимального возраста")
 
-                    elif self.state == STATUSES["choose_age_to"]:
+                    elif self.state == STATUSES["choose_age_to"] and int(self.request) in range(100):
                         self.state = STATUSES["choose_status"]
                         self.age_to = self.request
                         self.send_msg(self.user_id, f"Вводите номер статуса пользователя:\n"
@@ -254,9 +268,10 @@ class ServerBot:
                         self.show_searched_users()
 
                     elif self.state == STATUSES["got_it"] and self.request == "нет":
-                        self.send_msg(self.user_id, f"Вы выбрали команду нет поэтому мы возвращаемся в состояние hello")
-                        self.state = STATUSES["hello"]
-                        self.hello()
+                        self.send_msg(self.user_id, f"Вы выбрали команду нет поэтому мы возвращаемся в состояние "
+                                                    f"Сommands")
+                        self.state = STATUSES["commands"]
+                        self.commands()
 
                     elif self.state == STATUSES["wait_like"] and self.request == "like":
                         set_like_status_and_show_status(self.give_found_result.found_result_vk_id)
