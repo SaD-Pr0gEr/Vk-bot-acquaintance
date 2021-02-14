@@ -5,12 +5,13 @@ from config_keys import user_token as u_t, bots_token as b_t
 from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user
 from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, insert_search_params, \
     insert_searched_users_to_all_vk_users, select_searched_users_for_bot_users, insert_searched_users, \
-    set_like_status_and_show_status, set_hate_status_and_show_status
+    set_like_status_and_show_status, set_hate_status_and_show_status, select_to_user_all_hated_users, \
+    select_to_user_all_liked_users
 
 STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_age_to=4,
                 choose_status=5, news=6, history=7, got_it=8,
                 choose_country_wait=9, choose_city_wait=10, wait_database=11, like_wait=12,
-                select_users=13, wait_like=14
+                select_users=13, wait_like=14, wait_likekist_or_hatelist=15
                 )
 
 
@@ -34,7 +35,7 @@ class ServerBot:
         self.user_surname = ""
         self.user_gender = ""
         self.gender_text = ""
-        self.give_found_result = ""
+        self.give_found_result = 3
 
     def send_msg(self, user_id, message):
         self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7)})
@@ -113,13 +114,28 @@ class ServerBot:
                                     f'пишите да или нет')
         return self.state
 
-    # def show_searched_users(self, bot_user_vk_id):
-    #     self.searching()
-    #     give_found_result = select_searched_users_for_bot_users(bot_user_vk_id)
-    #     self.send_msg(self.user_id, give_found_result)
-    #     self.send_msg(self.user_id, "over!")
-    #     self.state = STATUSES["commands"]
-    #     self.commands()
+    def show_searched_users(self):
+        self.give_found_result = select_searched_users_for_bot_users(self.user_id)
+        self.send_msg(self.user_id, f"vk.com/id{self.give_found_result.found_result_vk_id}")
+        self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate! для выхода пишите quit\n")
+        self.state = STATUSES["wait_like"]
+        return self.give_found_result
+
+    def show_all_liked_users(self):
+        liked_users = select_to_user_all_liked_users(self.user_id)
+        for i in liked_users:
+            self.send_msg(self.user_id, f"vk.com/id{i.found_result_vk_id}")
+        self.send_msg(self.user_id, "Этот сеанс окончен и мы вернёмся в состояние Commands")
+        self.state = STATUSES["commands"]
+        self.commands()
+
+    def show_all_hated_users(self):
+        hated_users = select_to_user_all_hated_users(self.user_id)
+        for i in hated_users:
+            self.send_msg(self.user_id, f"vk.com/id{i.found_result_vk_id}")
+        self.send_msg(self.user_id, "Этот сеанс окончен и мы вернёмся в состояние Commands")
+        self.state = STATUSES["commands"]
+        self.commands()
 
     def talking(self):
         for event in self.long_poll.listen():
@@ -234,30 +250,39 @@ class ServerBot:
                     elif self.state == STATUSES["got_it"] and self.request == "да":
                         insert_search_params(self.user_id, self.age_from, self.age_to, self.status,
                                              self.town, self.country_id, self.gender)
-                        self.state = STATUSES["wait_like"]
                         self.searching()
-                        self.give_found_result = select_searched_users_for_bot_users(self.user_id)
-                        # print(self.give_found_result)
-                        self.send_msg(self.user_id, self.give_found_result.found_result_vk_id)
-                        self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate\n")
+                        self.show_searched_users()
 
                     elif self.state == STATUSES["got_it"] and self.request == "нет":
                         self.send_msg(self.user_id, f"Вы выбрали команду нет поэтому мы возвращаемся в состояние hello")
                         self.state = STATUSES["hello"]
                         self.hello()
 
-                    # elif self.state == STATUSES["select_users"]:
-                    #     self.state = STATUSES["wait_like"]
-                    #     self.searching()
-                    #     self.give_found_result = select_searched_users_for_bot_users(self.user_id)
-                    #     self.send_msg(self.user_id, self.give_found_result.found_result_vk_id)
-                    #     self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate\n")
-
                     elif self.state == STATUSES["wait_like"] and self.request == "like":
                         set_like_status_and_show_status(self.give_found_result.found_result_vk_id)
+                        self.state = STATUSES["wait_like"]
+                        self.show_searched_users()
 
                     elif self.state == STATUSES["wait_like"] and self.request == "hate":
                         set_hate_status_and_show_status(self.give_found_result.found_result_vk_id)
+                        self.state = STATUSES["wait_like"]
+                        self.show_searched_users()
+
+                    elif self.state == STATUSES["wait_like"] and self.request == "quit":
+                        self.send_msg(self.user_id, f"хотите ли смотреть список лайкнутых или чёрный список?)\n"
+                                                    f"Если да то пишите like_list или hate_list или exit для выхода")
+                        self.state = STATUSES["wait_likekist_or_hatelist"]
+
+                    elif self.state == STATUSES["wait_likekist_or_hatelist"] and self.request == "like_list":
+                        self.show_all_liked_users()
+
+                    elif self.state == STATUSES["wait_likekist_or_hatelist"] and self.request == "hate_list":
+                        self.show_all_hated_users()
+
+                    elif self.state == STATUSES["wait_likekist_or_hatelist"] and self.request == "exit":
+                        self.state = STATUSES["commands"]
+                        self.send_msg(self.user_id, f"Этот сеанс окончен и мы вернёмся в состояние Commands")
+                        self.commands()
 
                     elif self.request == "news" and self.state == STATUSES["commands"]:
                         self.news()

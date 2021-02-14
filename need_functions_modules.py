@@ -87,8 +87,11 @@ def get_photos(owner_user_id):
     # self.send_msg(user_id, f"Топ 3 фотографии юзера:\n")
     # for like, like_link in get_photos(user_id).items():
     #     self.send_msg(user_id, f'{like} - {like_link}')
-
+    # print(top_photos)
     return top_photos
+#
+#
+# get_photos(447507760)
 
 
 def search_country_for_db():
@@ -121,7 +124,7 @@ def search_users(age_from, age_to, gender, town, status, country):
                                 "status": status,
                                 "v": V,
                                 "is_closed": False,
-                                "can_access_closed": False,
+                                "can_access_closed": True,
                                 "country": country,
                                 "fields": ["sex, country, city"],
                                 "count": 1000,

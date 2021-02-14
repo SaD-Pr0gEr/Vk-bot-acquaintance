@@ -1,4 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, and_, Boolean
+from pprint import pprint
+
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config_keys import owner_db, db_name, db_password
@@ -204,7 +206,8 @@ def insert_searched_users(bot_user_vk_id, searched_user_vk_id):
         check_user_in.search_params_id = check_users_from_params.ID
         session.commit()
     else:
-        add = SearchUsers(search_params_id=check_users_from_params.ID, found_result_vk_id=check_users_from_all_users.vk_id)
+        add = SearchUsers(search_params_id=check_users_from_params.ID,
+                          found_result_vk_id=check_users_from_all_users.vk_id)
         session.add(add)
         session.commit()
 
@@ -234,13 +237,25 @@ def set_hate_status_and_show_status(searched_user_id):
 def select_to_user_all_liked_users(owner_vk_id):
     check_users_from_params = session.query(SearchParams).filter(owner_vk_id == SearchParams.search_owner_id).first()
     check_users_from_found_result = session.query(SearchUsers).filter(
-        SearchUsers.search_params_id == check_users_from_params.ID
+        SearchUsers.search_params_id == check_users_from_params.ID,
+        SearchUsers.liked_status == True
+    ).all()
+    return check_users_from_found_result
+
+
+def select_to_user_all_hated_users(owner_vk_id):
+    check_users_from_params = session.query(SearchParams).filter(owner_vk_id == SearchParams.search_owner_id).first()
+    check_users_from_found_result = session.query(SearchUsers).filter(
+        SearchUsers.search_params_id == check_users_from_params.ID,
+        SearchUsers.liked_status == False
     ).all()
     return check_users_from_found_result
 
 
 if __name__ == "__main__":
     # check_town(20, "chirchik")
+    # insert_bot_user_to_vk_users(616586034, "ozod", "ochilov", 2)
+    select_to_user_all_hated_users(616586034)
     # insert_search_params(616586034, 232, 343, 3, 20, 1, 1)
     # insert_bot_user_to_vk_users(616586034, "Озод", "ochilov", 1)
     # insert_into_country()
@@ -252,4 +267,3 @@ if __name__ == "__main__":
     # insert_searched_users(616586034, 99642131)
     # set_like_status_and_show_status(99642131)
     pass
-
