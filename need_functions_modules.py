@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlencode
 from config_keys import user_token
-from pprint import pprint
 
 
 # ЭТО КОД ДЛЯ ПОЛУЧЕНИЕ ТОКЕНА
@@ -159,7 +158,7 @@ def search_users(age_from, age_to, gender, town, status, country):
     return users
 
 
-search_users(18, 20, 1, "москва", 1, 1)
+# search_users(18, 20, 1, "москва", 1, 1)
 # get_token()
 # search_country("Узбекистан")
 
