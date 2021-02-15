@@ -261,10 +261,4 @@ def select_to_user_all_hated_users(owner_vk_id):
 
 
 if __name__ == "__main__":
-    # insert_into_country()
-    # BASE.metadata.create_all(engine)
-    # insert_into_gender()
-    # insert_into_status()
-    # insert_into_cities()
-
     pass

@@ -71,12 +71,11 @@ class ServerBot:
             surname = i["surname"]
             vk_id = i["User_ID"]
             city_id = i["city"]["id"]
-            city_title = i["city"]["title"]
             country_id = i["country"]["id"]
             gender_id = i["gender"]
             # print(city_id, city_title, country_id, gender_id)
-            insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id, city_id,
-                                                  city_title, self.status)
+            insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id,
+                                                  city_id, self.status)
             insert_searched_users(self.user_id, vk_id)
         self.state = STATUSES["select_users"]
         return search

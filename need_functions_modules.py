@@ -4,7 +4,6 @@ from urllib.parse import urljoin, urlencode
 from config_keys import user_token
 
 
-# ЭТО КОД ДЛЯ ПОЛУЧЕНИЕ ТОКЕНА
 def get_token():
     APP_ID = 7637207
     OAUTH_URL = "https://oauth.vk.com/authorize"
@@ -88,11 +87,6 @@ def get_photos(owner_user_id):
         if photo["likes"]["count"] in likes_list:
             some_dict = {"ID": photo["id"], "likes": photo["likes"]["count"]}
             som.append(some_dict)
-    # top_photos = ({"like": photo["likes"]["count"], "link": photo["sizes"][0]["url"]} for photo in res_json if
-    #               photo["likes"]["count"] in likes_list)
-    # self.send_msg(user_id, f"Топ 3 фотографии юзера:\n")
-    # for like, like_link in get_photos(user_id).items():
-    #     self.send_msg(user_id, f'{like} - {like_link}')
     return som
 
 
@@ -107,7 +101,6 @@ def search_country_for_db():
                                 "need_all": 1,
                                 "count": 1000
                             })
-    # print(response.json())
     response_json = response.json()["response"]["items"]
     return response_json
 
@@ -124,7 +117,6 @@ def search_city_for_db(c_id):
                                 "need_all": 0,
                                 "count": 1000
                             })
-    # print(response.json())
     response_json = response.json()["response"]["items"]
     return response_json
 
@@ -152,13 +144,6 @@ def search_users(age_from, age_to, gender, town, status, country):
               "city": i["city"], "country": i["country"], "gender": i["sex"], "is_closed": i["is_closed"]}
              for i in response_json if "city" in i and town.lower() in i["city"]["title"].lower() and "country" in i
              and 'is_closed' in i and i['is_closed'] is False)
-    # for i in users:
-    #     print(i)
-    #     print(i["can_access_closed"])
     return users
 
-
-# search_users(18, 20, 1, "москва", 1, 1)
-# get_token()
-# search_country("Узбекистан")
 
