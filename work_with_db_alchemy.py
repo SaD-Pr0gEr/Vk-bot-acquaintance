@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -183,7 +181,7 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
 
 
 def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, user_gender_id,
-                                          user_country_id, user_town_id, user_town_title, user_status_id):
+                                          user_country_id, user_town_id, user_status_id):
     one_user = session.query(AllVkUsers).filter(user_vk_id == AllVkUsers.vk_id).first()
     know_gender = session.query(Gender).filter(user_gender_id == Gender.ID).first()
     know_country = session.query(County).filter(user_country_id == County.ID).first()
