@@ -255,7 +255,7 @@ def select_to_user_all_hated_users(owner_vk_id):
 if __name__ == "__main__":
     # check_town(20, "chirchik")
     # insert_bot_user_to_vk_users(616586034, "ozod", "ochilov", 2)
-    select_to_user_all_hated_users(616586034)
+    # select_to_user_all_hated_users(616586034)
     # insert_search_params(616586034, 232, 343, 3, 20, 1, 1)
     # insert_bot_user_to_vk_users(616586034, "Озод", "ochilov", 1)
     # insert_into_country()

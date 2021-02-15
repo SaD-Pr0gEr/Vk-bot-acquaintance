@@ -18,6 +18,7 @@ def get_token():
         "client_id": APP_ID
     }
     print('?'.join([OAUTH_URL, urlencode(OAUTH_PARAMS)]))
+    return True
 
 
 def info_celtics_wiki():
@@ -84,20 +85,16 @@ def get_photos(owner_user_id):
     likes_nums = sorted(list({like_photo["likes"]["count"] for like_photo in res_json}))
     likes_list = likes_nums[-3:]
     som = []
-    some_dict = {}
     for photo in res_json:
         if photo["likes"]["count"] in likes_list:
-            dicts = {"likes": photo["likes"]["count"], "link": photo["sizes"][0]["url"]}
-            som.append(dicts)
+            some_dict = {"ID": photo["id"], "likes": photo["likes"]["count"]}
+            som.append(some_dict)
     # top_photos = ({"like": photo["likes"]["count"], "link": photo["sizes"][0]["url"]} for photo in res_json if
     #               photo["likes"]["count"] in likes_list)
     # self.send_msg(user_id, f"Топ 3 фотографии юзера:\n")
     # for like, like_link in get_photos(user_id).items():
     #     self.send_msg(user_id, f'{like} - {like_link}')
     return som
-
-
-get_photos(195253250)
 
 
 def search_country_for_db():
