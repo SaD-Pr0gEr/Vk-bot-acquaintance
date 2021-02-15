@@ -147,7 +147,9 @@ def select_search_country(country):
 
 
 def check_town(country_id, town_name):
-    new_town = session.query(Town).filter(and_(country_id == Town.country_id, town_name.capitalize() == Town.name)).first()
+    new_town = session.query(Town).filter(and_(
+        country_id == Town.country_id, town_name.capitalize() == Town.name
+    )).first()
     some_dict = {}
     if new_town:
         some_dict["ID"] = new_town.ID
