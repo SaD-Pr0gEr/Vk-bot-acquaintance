@@ -113,6 +113,23 @@ def search_country_for_db():
     return response_json
 
 
+def search_city_for_db(c_id):
+    V = "5.126"
+    API_BASE_URL = "https://api.vk.com/method/"
+    link = urljoin(API_BASE_URL, "database.getCities")
+    response = requests.get(link,
+                            params={
+                                "access_token": user_token,
+                                "v": V,
+                                "country_id": c_id,
+                                "need_all": 0,
+                                "count": 1000
+                            })
+    # print(response.json())
+    response_json = response.json()["response"]["items"]
+    return response_json
+
+
 def search_users(age_from, age_to, gender, town, status, country):
     V = "5.126"
     API_BASE_URL = "https://api.vk.com/method/"

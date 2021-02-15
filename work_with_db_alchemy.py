@@ -1,10 +1,10 @@
 from pprint import pprint
 
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config_keys import owner_db, db_name, db_password
-from need_functions_modules import search_country_for_db
+from need_functions_modules import search_country_for_db, search_city_for_db
 
 engine = create_engine(f"postgresql+psycopg2://{owner_db}:{db_password}@localhost:5432/{db_name}")
 
@@ -33,6 +33,7 @@ class Town(BASE):
 
     ID = Column(Integer, primary_key=True)
     name = Column(String)
+    country_id = Column(Integer)
 
 
 class Status(BASE):
@@ -63,7 +64,7 @@ class SearchParams(BASE):
     age_from = Column(Integer)
     age_to = Column(Integer)
     status = Column(Integer, ForeignKey("user_status.ID"))
-    town = Column(String(255))
+    town = Column(Integer, ForeignKey("user_town.ID"))
     country = Column(Integer, ForeignKey("user_country.ID"))
     gender = Column(Integer, ForeignKey("user_gender.ID"))
 
@@ -107,6 +108,18 @@ def insert_into_country():
     session.commit()
 
 
+def insert_into_cities():
+    select_country = session.query(County).all()
+    for i in select_country:
+        city = search_city_for_db(i.ID)
+        for a in city:
+            city_id = a["id"]
+            city_title = a["title"]
+            add = Town(ID=city_id, name=city_title, country_id=i.ID)
+            session.add(add)
+            session.commit()
+
+
 def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
     one_user = session.query(AllVkUsers).filter(vk_id == AllVkUsers.vk_id).first()
     know_user_gender = session.query(Gender).filter(gender == Gender.ID).first()
@@ -135,19 +148,15 @@ def select_search_country(country):
         return False
 
 
-def check_town(town_id, town_name):
-    new_town = session.query(Town).filter(town_id == Town.ID).first()
+def check_town(country_id, town_name):
+    new_town = session.query(Town).filter(and_(country_id == Town.country_id, town_name.capitalize() == Town.name)).first()
+    some_dict = {}
     if new_town:
-        new_town.ID = town_id
-        new_town.name = town_name
-        session.commit()
-        return new_town
-
+        some_dict["ID"] = new_town.ID
+        some_dict["name"] = new_town.name
+        return some_dict
     else:
-        add_town = Town(ID=town_id, name=town_name)
-        session.add(add_town)
-        session.commit()
-        return add_town
+        return False
 
 
 def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town_name, country_id, gender_id):
@@ -178,7 +187,6 @@ def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, u
     one_user = session.query(AllVkUsers).filter(user_vk_id == AllVkUsers.vk_id).first()
     know_gender = session.query(Gender).filter(user_gender_id == Gender.ID).first()
     know_country = session.query(County).filter(user_country_id == County.ID).first()
-    check_town(user_town_id, user_town_title)
     know_town = session.query(Town).filter(user_town_id == Town.ID).first()
     know_status = session.query(Status).filter(user_status_id == Status.ID).first()
     if one_user:
@@ -253,17 +261,10 @@ def select_to_user_all_hated_users(owner_vk_id):
 
 
 if __name__ == "__main__":
-    # check_town(20, "chirchik")
-    # insert_bot_user_to_vk_users(616586034, "ozod", "ochilov", 2)
-    # select_to_user_all_hated_users(616586034)
-    # insert_search_params(616586034, 232, 343, 3, 20, 1, 1)
-    # insert_bot_user_to_vk_users(616586034, "Озод", "ochilov", 1)
     # insert_into_country()
     # BASE.metadata.create_all(engine)
     # insert_into_gender()
     # insert_into_status()
-    # insert_searched_users_to_all_vk_users(10000, "ozod", "ochilov", 1, 18, 233, "tashkent", 1)
-    # select_searched_users_for_bot_users(616586034)
-    # insert_searched_users(616586034, 99642131)
-    # set_like_status_and_show_status(99642131)
+    # insert_into_cities()
+
     pass

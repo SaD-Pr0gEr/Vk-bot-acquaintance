@@ -7,7 +7,7 @@ from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n
 from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, insert_search_params, \
     insert_searched_users_to_all_vk_users, select_searched_users_for_bot_users, insert_searched_users, \
     set_like_status_and_show_status, set_hate_status_and_show_status, select_to_user_all_hated_users, \
-    select_to_user_all_liked_users
+    select_to_user_all_liked_users, check_town
 
 STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_age_to=4,
                 choose_status=5, news=6, history=7, got_it=8,
@@ -22,7 +22,7 @@ class ServerBot:
         self.long_poll = VkLongPoll(self.vk)
         self.users_token = users_token
         self.request = ''
-        self.user_id = 0
+        self.user_id = 616586034
         self.state = STATUSES["hello"]
         self.status = 2
         self.gender = 1
@@ -39,7 +39,12 @@ class ServerBot:
         self.give_found_result = 3
 
     def send_msg(self, user_id, message):
-        self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7)})
+        self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7)
+                                         })
+
+    def send_photo(self, user_id, message, owner_photo_id,  photo_id):
+        self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7),
+                                         "attachment": f"photo{owner_photo_id}_{photo_id}"})
 
     def hello(self):
         parsing_bot_user = parse_bot_user(self.user_id)
@@ -89,6 +94,23 @@ class ServerBot:
             self.state = STATUSES["choose_country_wait"]
             return self.state
 
+    def select_city(self):
+        searching = check_town(self.country_id, self.town)
+        if searching:
+            self.town_id = searching["ID"]
+            self.town = searching["name"]
+            self.state = STATUSES["choose_gender"]
+            self.send_msg(self.user_id, f"вводите пол юзера:\n"
+                                        f"man - мужчина\n"
+                                        f"woman - женщина\n"
+                                        f"any - без разницы")
+            return self.state
+        else:
+            self.send_msg(self.user_id, f"Вы ввели неправильный город поиска! пожалуйста вводите её заново)\n"
+                                        f" Постарайтесь вводить известные города")
+            self.state = STATUSES["choose_city_wait"]
+            return self.state
+
     def news(self):
         for news in n_c():
             self.send_msg(self.user_id, news)
@@ -121,8 +143,9 @@ class ServerBot:
         photos = get_photos(self.give_found_result.found_result_vk_id)
         self.send_msg(self.user_id, "Топ 3 фотографии юзера:\n ")
         for a in photos:
-            self.send_msg(self.user_id, a['link'])
-        self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate! для выхода пишите quit\n")
+            self.send_photo(self.user_id, " ", self.give_found_result.found_result_vk_id, a["ID"])
+        self.send_msg(self.user_id, "Нравится? если да то пишите like если нет то hate! для выхода пишите quit\n",
+                      )
         self.state = STATUSES["wait_like"]
         return self.give_found_result
 
@@ -131,7 +154,8 @@ class ServerBot:
         for i in liked_users:
             self.send_msg(self.user_id, f"vk.com/id{i.found_result_vk_id}")
             photos = get_photos(i.found_result_vk_id)
-            self.send_msg(self.user_id, f"Топ 3 фотографии юзера:\n {photos['link']}")
+            for a in photos:
+                self.send_photo(self.user_id, " ", i.found_result_vk_id, a["ID"])
         self.send_msg(self.user_id, "Этот сеанс окончен и мы вернёмся в состояние Commands")
         self.state = STATUSES["commands"]
         self.commands()
@@ -141,7 +165,8 @@ class ServerBot:
         for i in hated_users:
             self.send_msg(self.user_id, f"vk.com/id{i.found_result_vk_id}")
             photos = get_photos(i.found_result_vk_id)
-            self.send_msg(self.user_id, f"Топ 3 фотографии юзера:\n {photos['link']}")
+            for a in photos:
+                self.send_photo(self.user_id, " ", self.give_found_result.found_result_vk_id, a["ID"])
         self.send_msg(self.user_id, "Этот сеанс окончен и мы вернёмся в состояние Commands")
         self.state = STATUSES["commands"]
         self.commands()
@@ -183,11 +208,7 @@ class ServerBot:
 
                     elif self.state == STATUSES["choose_city_wait"]:
                         self.town = self.request
-                        self.state = STATUSES["choose_gender"]
-                        self.send_msg(self.user_id, f"вводите пол юзера:\n"
-                                                    f"man - мужчина\n"
-                                                    f"woman - женщина\n"
-                                                    f"any - без разницы")
+                        self.select_city()
 
                     elif self.request == "man" and self.state == STATUSES["choose_gender"]:
                         self.gender = 2
@@ -263,7 +284,7 @@ class ServerBot:
 
                     elif self.state == STATUSES["got_it"] and self.request == "да":
                         insert_search_params(self.user_id, self.age_from, self.age_to, self.status,
-                                             self.town, self.country_id, self.gender)
+                                             self.town_id, self.country_id, self.gender)
                         self.searching()
                         self.show_searched_users()
 
@@ -314,5 +335,6 @@ class ServerBot:
 
 if __name__ == "__main__":
     some_user = ServerBot(u_t, b_t)
+    # some_user.show_all_liked_users()
     some_user.talking()
     # some_user.searching()
