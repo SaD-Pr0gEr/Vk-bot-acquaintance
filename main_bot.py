@@ -281,13 +281,13 @@ class ServerBot:
                         self.status = 8
                         self.got_it()
 
-                    elif self.state == STATUSES["got_it"] and self.request == "да":
+                    elif self.state == STATUSES["got_it"] and self.request.lower() == "да":
                         insert_search_params(self.user_id, self.age_from, self.age_to, self.status,
                                              self.town_id, self.country_id, self.gender)
                         self.searching()
                         self.show_searched_users()
 
-                    elif self.state == STATUSES["got_it"] and self.request == "нет":
+                    elif self.state == STATUSES["got_it"] and self.request.lower() == "нет":
                         self.send_msg(self.user_id, f"Вы выбрали команду нет поэтому мы возвращаемся в состояние "
                                                     f"Сommands")
                         self.state = STATUSES["commands"]
