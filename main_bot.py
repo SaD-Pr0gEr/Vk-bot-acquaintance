@@ -16,40 +16,47 @@ STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_
                 )
 
 
+class Needparams:
+    def __init__(self, user_id=616586034, status=1, gender=1, age_from: int = 1, age_to: int = 10, country_id: int = 1,
+                 country_name: str = "россия", town: str = "москва", town_id: int = 1, user_name: str = "ozod",
+                 user_surname: str = "ochilov", user_gender: str = "man", gender_text="", give_found_result=""):
+        self.request = ''
+        self.user_id = user_id
+        self.state = STATUSES["hello"]
+        self.status = status
+        self.gender = gender
+        self.age_from: age_from
+        self.age_to: age_to
+        self.country_name = country_name
+        self.country_id = country_id
+        self.town = town
+        self.town_id = town_id
+        self.user_name = user_name
+        self.user_surname = user_surname
+        self.user_gender = user_gender
+        self.gender_text = gender_text
+        self.give_found_result = give_found_result
+
+
 class ServerBot:
+
     def __init__(self, users_token=u_t, group_token=b_t):
         self.vk = vk_api.VkApi(token=group_token)
         self.long_poll = VkLongPoll(self.vk)
         self.users_token = users_token
-        self.request = ''
-        self.user_id = 616586034
-        self.state = STATUSES["hello"]
-        self.status = 2
-        self.gender = 1
-        self.age_from: int = 18
-        self.age_to: int = 20
-        self.country_name = "узбекистан"
-        self.country_id = 18
-        self.town = "ташкент"
-        self.town_id = 0
-        self.user_name = ""
-        self.user_surname = ""
-        self.user_gender = ""
-        self.gender_text = ""
-        self.give_found_result = 3
 
     def send_msg(self, user_id, message):
         self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7)
                                          })
 
-    def send_photo(self, user_id, message, owner_photo_id,  photo_id):
+    def send_photo(self, user_id, message, owner_photo_id, photo_id):
         self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7),
                                          "attachment": f"photo{owner_photo_id}_{photo_id}"})
 
     def hello(self):
         parsing_bot_user = parse_bot_user(self.user_id)
-        self.user_name = parsing_bot_user["name"]
-        self.user_surname = parsing_bot_user["surname"]
+        self.some_user.user_name = parsing_bot_user["name"]
+        self.some_user.user_surname = parsing_bot_user["surname"]
         self.user_gender = parsing_bot_user["gender"]
         self.send_msg(self.user_id, f"Привет {self.user_name}!\n"
                                     f"Я бот VKinder ваш помощник для помощи вводите bot_commands")
@@ -333,6 +340,7 @@ class ServerBot:
 
 
 if __name__ == "__main__":
+    some_user_params = Needparams()
     some_user = ServerBot(u_t, b_t)
     # some_user.show_all_liked_users()
     some_user.talking()

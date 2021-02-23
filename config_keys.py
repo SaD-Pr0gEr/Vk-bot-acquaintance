@@ -1,4 +1,4 @@
-user_token = "токен"
+user_token = "token"
 bots_token = "токен"
 owner_db = "owner_pro_diplom_db"
 db_name = "pro_diplom_db"

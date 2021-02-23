@@ -13,25 +13,27 @@ class Testneedfunctions:
         assert get_token() == True
 
     def test_method_celtics_info_wiki(self):
-        assert info_celtics_wiki()
+        assert "https://ru.wikipedia.org/wiki/" in info_celtics_wiki()
 
     def test_method_news_celtics(self):
-        assert news_celtics()
+        assert "Название" and "Ссылка" in str(news_celtics())
 
     def test_parse_bot_user(self):
-        assert parse_bot_user(69332752)
+        assert ("name" and "surname" and "ID" and "gender") in parse_bot_user(69332752).keys()
 
     def test_get_photos(self):
-        assert get_photos(69332752)
+        assert ("ID" and "likes") in get_photos(69332752)[0]
 
     def test_search_country_for_db(self):
-        assert search_country_for_db()
+        assert ("id" and "title") in search_country_for_db()[0]
 
     def test_search_city_for_db(self):
-        assert search_city_for_db(1)
+        assert ("id" and "title") in search_city_for_db(1)[0]
 
     def test_search_users(self):
-        search_users(18, 20, 1, 1, 1, 1)
+        test = search_users(18, 20, 1, "москва", 1, 1)
+        for i in test:
+            assert "name" in i
 
     def teardown_class(self):
         print("method teardown")
