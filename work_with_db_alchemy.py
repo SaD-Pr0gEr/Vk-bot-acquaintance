@@ -7,7 +7,6 @@ from need_functions_modules import search_country_for_db, search_city_for_db
 engine = create_engine(f"postgresql+psycopg2://{owner_db}:{db_password}@localhost:5432/{db_name}")
 
 Session = sessionmaker(bind=engine)
-session = Session()
 
 BASE = declarative_base()
 
@@ -81,6 +80,7 @@ def insert_into_gender():
     gender_woman = Gender(ID=1, title="woman")
     gender_man = Gender(ID=2, title="man")
     gender_any = Gender(ID=3, title="any")
+    session = Session()
     session.add_all([gender_woman, gender_man, gender_any])
     session.commit()
 
@@ -94,12 +94,14 @@ def insert_into_status():
     status_6 = Status(ID=6, name="в активном поиске")
     status_7 = Status(ID=7, name="влюблен(-а)")
     status_8 = Status(ID=8, name="в гражданском браке")
+    session = Session()
     session.add_all([status_1, status_2, status_3, status_4, status_5, status_6, status_7, status_8])
     session.commit()
 
 
 def insert_into_country():
     countrys = search_country_for_db()
+    session = Session()
     for i in countrys:
         add = County(ID=i["id"], name=i["title"])
         session.add(add)
@@ -107,6 +109,7 @@ def insert_into_country():
 
 
 def insert_into_cities():
+    session = Session()
     select_country = session.query(County).all()
     for i in select_country:
         city = search_city_for_db(i.ID)
@@ -119,6 +122,7 @@ def insert_into_cities():
 
 
 def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
+    session = Session()
     one_user = session.query(AllVkUsers).filter(vk_id == AllVkUsers.vk_id).first()
     know_user_gender = session.query(Gender).filter(gender == Gender.ID).first()
     if one_user:
@@ -136,6 +140,7 @@ def insert_bot_user_to_vk_users(vk_id, first_name, last_name, gender):
 
 
 def select_search_country(country):
+    session = Session()
     search_country_from_db = session.query(County).filter(country.capitalize() == County.name).first()
     some_dict = {}
     if search_country_from_db:
@@ -147,6 +152,7 @@ def select_search_country(country):
 
 
 def check_town(country_id, town_name):
+    session = Session()
     new_town = session.query(Town).filter(and_(
         country_id == Town.country_id, town_name.capitalize() == Town.name
     )).first()
@@ -160,6 +166,7 @@ def check_town(country_id, town_name):
 
 
 def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town_name, country_id, gender_id):
+    session = Session()
     new_status_param = session.query(Status).filter(status_param == Status.ID).first()
     select_country = session.query(County).filter(country_id == County.ID).first()
     select_gender = session.query(Gender).filter(gender_id == Gender.ID).first()
@@ -184,6 +191,7 @@ def insert_search_params(vk_id, age_from_param, age_to_param, status_param, town
 
 def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, user_gender_id,
                                           user_country_id, user_town_id, user_status_id):
+    session = Session()
     one_user = session.query(AllVkUsers).filter(user_vk_id == AllVkUsers.vk_id).first()
     know_gender = session.query(Gender).filter(user_gender_id == Gender.ID).first()
     know_country = session.query(County).filter(user_country_id == County.ID).first()
@@ -206,6 +214,7 @@ def insert_searched_users_to_all_vk_users(user_vk_id, user_name, user_surname, u
 
 
 def insert_searched_users(bot_user_vk_id, searched_user_vk_id):
+    session = Session()
     check_users_from_params = session.query(SearchParams).filter(bot_user_vk_id == SearchParams.search_owner_id).first()
     check_users_from_all_users = session.query(AllVkUsers).filter(searched_user_vk_id == AllVkUsers.vk_id).first()
     check_user_in = session.query(SearchUsers).filter(SearchUsers.found_result_vk_id == searched_user_vk_id).first()
@@ -221,6 +230,7 @@ def insert_searched_users(bot_user_vk_id, searched_user_vk_id):
 
 
 def select_searched_users_for_bot_users(bot_user_vk_id):
+    session = Session()
     check_users_from_params = session.query(SearchParams).filter(bot_user_vk_id == SearchParams.search_owner_id).first()
     check_users_from_found_result = session.query(SearchUsers).filter(
         check_users_from_params.ID == SearchUsers.search_params_id
@@ -229,6 +239,7 @@ def select_searched_users_for_bot_users(bot_user_vk_id):
 
 
 def set_like_status_and_show_status(searched_user_id):
+    session = Session()
     set_user = session.query(SearchUsers).filter(searched_user_id == SearchUsers.found_result_vk_id).first()
     set_user.is_shown = True
     set_user.liked_status = True
@@ -236,6 +247,7 @@ def set_like_status_and_show_status(searched_user_id):
 
 
 def set_hate_status_and_show_status(searched_user_id):
+    session = Session()
     set_user = session.query(SearchUsers).filter(searched_user_id == SearchUsers.found_result_vk_id).first()
     set_user.is_shown = True
     set_user.liked_status = False
@@ -243,6 +255,7 @@ def set_hate_status_and_show_status(searched_user_id):
 
 
 def select_to_user_all_liked_users(owner_vk_id):
+    session = Session()
     check_users_from_params = session.query(SearchParams).filter(owner_vk_id == SearchParams.search_owner_id).first()
     check_users_from_found_result = session.query(SearchUsers).filter(
         SearchUsers.search_params_id == check_users_from_params.ID,
@@ -252,6 +265,7 @@ def select_to_user_all_liked_users(owner_vk_id):
 
 
 def select_to_user_all_hated_users(owner_vk_id):
+    session = Session()
     check_users_from_params = session.query(SearchParams).filter(owner_vk_id == SearchParams.search_owner_id).first()
     check_users_from_found_result = session.query(SearchUsers).filter(
         SearchUsers.search_params_id == check_users_from_params.ID,
