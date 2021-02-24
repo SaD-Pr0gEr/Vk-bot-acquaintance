@@ -33,7 +33,7 @@ class Testneedfunctions:
     def test_search_users(self):
         test = search_users(18, 20, 1, "москва", 1, 1)
         for i in test:
-            assert "name" in i
+            assert "москва" in i.values()
 
     def teardown_class(self):
         print("method teardown")
