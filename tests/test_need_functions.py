@@ -16,7 +16,7 @@ class Testneedfunctions:
         assert "https://ru.wikipedia.org/wiki/" in info_celtics_wiki()
 
     def test_method_news_celtics(self):
-        assert "Название" and "Ссылка" in str(news_celtics())
+        assert ("Название" and "Ссылка") in str(news_celtics())
 
     def test_parse_bot_user(self):
         assert ("name" and "surname" and "ID" and "gender") in parse_bot_user(69332752).keys()
