@@ -146,4 +146,3 @@ def search_users(age_from, age_to, gender, town, status, country):
              and 'is_closed' in i and i['is_closed'] is False)
     return users
 
-
