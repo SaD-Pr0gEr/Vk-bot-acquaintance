@@ -16,35 +16,37 @@ STATUSES = dict(hello=0, commands=1, choose_gender=2, choose_age_from=3, choose_
                 )
 
 
-class Needparams:
-    def __init__(self, user_id=616586034, status=1, gender=1, age_from: int = 1, age_to: int = 10, country_id: int = 1,
-                 country_name: str = "россия", town: str = "москва", town_id: int = 1, user_name: str = "ozod",
-                 user_surname: str = "ochilov", user_gender: str = "man", gender_text="", give_found_result=""):
+class User:
+
+    def __init__(self, user_id=616586034, user_name: str = "ozod",
+                 user_surname: str = "ochilov", user_gender: str = "man"):
         self.user_id = user_id
-        self.status = status
-        self.gender = gender
-        self.age_from: age_from
-        self.age_to: age_to
-        self.country_name = country_name
-        self.country_id = country_id
-        self.town = town
-        self.town_id = town_id
         self.user_name = user_name
         self.user_surname = user_surname
         self.user_gender = user_gender
-        self.gender_text = gender_text
-        self.give_found_result = give_found_result
 
 
 class ServerBot:
 
-    def __init__(self, need_params, users_token=u_t, group_token=b_t):
+    def __init__(self, need_params, users_token=u_t, group_token=b_t, status=1, gender=1, age_from: int = 1,
+                 age_to: int = 10, country_id: int = 1, country_name: str = "россия", town: str = "москва",
+                 town_id: int = 1, gender_text="", give_found_result=0):
+        self.vk = vk_api.VkApi(token=group_token)
+        self.users_token = users_token
+        self.long_poll = VkLongPoll(self.vk)
         self.request = ''
         self.state = STATUSES["hello"]
+        self.status = status
+        self.gender = gender
+        self.age_from = age_from
+        self.age_to = age_to
+        self.country_name = country_name
+        self.country_id = country_id
+        self.town = town
+        self.town_id = town_id
+        self.gender_text = gender_text
+        self.give_found_result = give_found_result
         self.need_params = need_params
-        self.vk = vk_api.VkApi(token=group_token)
-        self.long_poll = VkLongPoll(self.vk)
-        self.users_token = users_token
 
     def send_msg(self, user_id, message):
         self.vk.method("messages.send", {'user_id': user_id, 'message': message, "random_id": randrange(10 ** 7)
@@ -74,8 +76,8 @@ class ServerBot:
                              f"History: История команды Boston Celtics и прочие материалы")
 
     def searching(self):
-        search = search_users(self.need_params.age_from, self.need_params.age_to, self.need_params.gender,
-                              self.need_params.town, self.need_params.status, self.need_params.country_id)
+        search = search_users(self.age_from, self.age_to, self.gender,
+                              self.town, self.status, self.country_id)
         for i in search:
             username = i["name"]
             surname = i["surname"]
@@ -85,16 +87,16 @@ class ServerBot:
             gender_id = i["gender"]
             # print(city_id, city_title, country_id, gender_id)
             insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id,
-                                                  city_id, self.need_params.status)
+                                                  city_id, self.status)
             insert_searched_users(self.need_params.user_id, vk_id)
         self.state = STATUSES["select_users"]
         return search
 
     def selecting_country(self):
-        searching = select_search_country(self.need_params.country_name)
+        searching = select_search_country(self.country_name)
         if searching:
-            self.need_params.country_id = searching["ID"]
-            self.need_params.country_name = searching["name"]
+            self.country_id = searching["ID"]
+            self.country_name = searching["name"]
             self.state = STATUSES["choose_city_wait"]
             self.send_msg(self.need_params.user_id, f"Вводите город поиска")
             return self.state
@@ -104,10 +106,10 @@ class ServerBot:
             return self.state
 
     def select_city(self):
-        searching = check_town(self.need_params.country_id, self.need_params.town)
+        searching = check_town(self.country_id, self.town)
         if searching:
-            self.need_params.town_id = searching["ID"]
-            self.need_params.town = searching["name"]
+            self.town_id = searching["ID"]
+            self.town = searching["name"]
             self.state = STATUSES["choose_gender"]
             self.send_msg(self.need_params.user_id, f"вводите пол юзера:\n"
                                                     f"man - мужчина\n"
@@ -137,29 +139,29 @@ class ServerBot:
     def got_it(self):
         self.state = STATUSES["got_it"]
         self.send_msg(self.need_params.user_id, f'Параметры поиска вашей половинки:\n'
-                                                f'Минимальный возраст: {self.need_params.age_from},\n'
-                                                f'Максимальный возраст: {self.need_params.age_to},\n'
-                                                f'Город: {self.need_params.town},\n'
-                                                f'Пол: {self.need_params.gender_text},\n'
-                                                f'Страна: {self.need_params.country_name},\n'
-                                                f'Семейное положение: {self.need_params.status}\n'
+                                                f'Минимальный возраст: {self.age_from},\n'
+                                                f'Максимальный возраст: {self.age_to},\n'
+                                                f'Город: {self.town},\n'
+                                                f'Пол: {self.gender_text},\n'
+                                                f'Страна: {self.country_name},\n'
+                                                f'Семейное положение: {self.status}\n'
                                                 f'Хотите начать?\n'
                                                 f'пишите да или нет')
         return self.state
 
     def show_searched_users(self):
-        self.need_params.give_found_result = select_searched_users_for_bot_users(self.need_params.user_id)
-        self.send_msg(self.need_params.user_id, f"vk.com/id{self.need_params.give_found_result.found_result_vk_id}")
-        photos = get_photos(self.need_params.give_found_result.found_result_vk_id)
+        self.give_found_result = select_searched_users_for_bot_users(self.need_params.user_id)
+        self.send_msg(self.need_params.user_id, f"vk.com/id{self.give_found_result.found_result_vk_id}")
+        photos = get_photos(self.give_found_result.found_result_vk_id)
         self.send_msg(self.need_params.user_id, "Топ 3 фотографии юзера:\n ")
         for a in photos:
-            self.send_photo(self.need_params.user_id, " ", self.need_params.give_found_result.found_result_vk_id,
+            self.send_photo(self.need_params.user_id, " ", self.give_found_result.found_result_vk_id,
                             a["ID"])
         self.send_msg(self.need_params.user_id,
                       "Нравится? если да то пишите like если нет то hate! для выхода пишите quit\n",
                       )
         self.state = STATUSES["wait_like"]
-        return self.need_params.give_found_result
+        return self.give_found_result
 
     def show_all_liked_users(self):
         liked_users = select_to_user_all_liked_users(self.need_params.user_id)
@@ -178,7 +180,7 @@ class ServerBot:
             self.send_msg(self.need_params.user_id, f"vk.com/id{i.found_result_vk_id}")
             photos = get_photos(i.found_result_vk_id)
             for a in photos:
-                self.send_photo(self.need_params.user_id, " ", self.need_params.give_found_result.found_result_vk_id,
+                self.send_photo(self.need_params.user_id, " ", i.found_result_vk_id,
                                 a["ID"])
         self.send_msg(self.need_params.user_id, "Этот сеанс окончен и мы вернёмся в состояние Commands")
         self.state = STATUSES["commands"]
@@ -217,43 +219,43 @@ class ServerBot:
                                       f"Вводите страну поиска Например Россия, Украина, Белорусия и т.д.\n")
 
                     elif self.state == STATUSES["choose_country_wait"]:
-                        self.need_params.country_name = self.request
+                        self.country_name = self.request
                         self.selecting_country()
 
                     elif self.state == STATUSES["choose_city_wait"]:
-                        self.need_params.town = self.request
+                        self.town = self.request
                         self.select_city()
 
                     elif self.request == "man" and self.state == STATUSES["choose_gender"]:
-                        self.need_params.gender = 2
-                        self.need_params.gender_text = "man"
+                        self.gender = 2
+                        self.gender_text = "man"
                         self.state = STATUSES["choose_age_from"]
                         self.send_msg(self.need_params.user_id, f"Вводите минимальный возраст пользователя "
                                                                 f"от 10 до 100")
 
                     elif self.request == "woman" and self.state == STATUSES["choose_gender"]:
-                        self.need_params.gender = 1
-                        self.need_params.gender_text = "woman"
+                        self.gender = 1
+                        self.gender_text = "woman"
                         self.state = STATUSES["choose_age_from"]
                         self.send_msg(self.need_params.user_id, f"Вводите минимальный возраст пользователя "
                                                                 f"от 10 до 100")
 
                     elif self.request == "any" and self.state == STATUSES["choose_gender"]:
-                        self.need_params.gender = 0
-                        self.need_params.gender_text = "any"
+                        self.gender = 0
+                        self.gender_text = "any"
                         self.state = STATUSES["choose_age_from"]
                         self.send_msg(self.need_params.user_id, f"Вводите минимальный возраст пользователя "
                                                                 f"от 10 до 100")
 
                     elif self.state == STATUSES["choose_age_from"] and int(self.request) in range(100):
                         self.state = STATUSES["choose_age_to"]
-                        self.need_params.age_from = self.request
+                        self.age_from = self.request
                         self.send_msg(self.need_params.user_id, f"Вводите максимальный возраст пользователя"
                                                                 f" и оно не должно быть меньше минимального возраста")
 
                     elif self.state == STATUSES["choose_age_to"] and int(self.request) in range(100):
                         self.state = STATUSES["choose_status"]
-                        self.need_params.age_to = self.request
+                        self.age_to = self.request
                         self.send_msg(self.need_params.user_id, f"Вводите номер статуса пользователя:\n"
                                                                 f"1.не женат(не за мужем)\n"
                                                                 f"2.встречается\n"
@@ -265,42 +267,42 @@ class ServerBot:
                                                                 f"8.в гражданском браке")
 
                     elif self.state == STATUSES["choose_status"] and self.request == "1":
-                        self.need_params.status = 1
+                        self.status = 1
                         self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "2":
-                        self.need_params.status = 2
+                        self.status = 2
                         self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "3":
-                        self.need_params.status = 3
+                        self.status = 3
                         self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "4":
-                        self.need_params.status = 4
+                        self.status = 4
                         self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "5":
-                        self.need_params.status = 5
+                        self.status = 5
                         self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "6":
-                        self.need_params.status = 6
+                        self.status = 6
                         self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "7":
-                        self.need_params.status = 7
+                        self.status = 7
                         self.got_it()
 
                     elif self.state == STATUSES["choose_status"] and self.request == "8":
-                        self.need_params.status = 8
+                        self.status = 8
                         self.got_it()
 
                     elif self.state == STATUSES["got_it"] and self.request.lower() == "да":
-                        insert_search_params(self.need_params.user_id, self.need_params.age_from,
-                                             self.need_params.age_to, self.need_params.status,
-                                             self.need_params.town_id, self.need_params.country_id,
-                                             self.need_params.gender)
+                        insert_search_params(self.need_params.user_id, self.age_from,
+                                             self.age_to, self.status,
+                                             self.town_id, self.country_id,
+                                             self.gender)
                         self.searching()
                         self.show_searched_users()
 
@@ -311,12 +313,12 @@ class ServerBot:
                         self.commands()
 
                     elif self.state == STATUSES["wait_like"] and self.request == "like":
-                        set_like_status_and_show_status(self.need_params.give_found_result.found_result_vk_id)
+                        set_like_status_and_show_status(self.give_found_result.found_result_vk_id)
                         self.state = STATUSES["wait_like"]
                         self.show_searched_users()
 
                     elif self.state == STATUSES["wait_like"] and self.request == "hate":
-                        set_hate_status_and_show_status(self.need_params.give_found_result.found_result_vk_id)
+                        set_hate_status_and_show_status(self.give_found_result.found_result_vk_id)
                         self.state = STATUSES["wait_like"]
                         self.show_searched_users()
 
@@ -353,6 +355,6 @@ class ServerBot:
 
 
 if __name__ == "__main__":
-    some_user_params = Needparams()
+    some_user_params = User()
     some_user = ServerBot(some_user_params, u_t, b_t)
     some_user.talking()
