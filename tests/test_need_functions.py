@@ -16,23 +16,29 @@ class Testneedfunctions:
         assert "https://ru.wikipedia.org/wiki/" in info_celtics_wiki()
 
     def test_method_news_celtics(self):
-        pass
+        news = news_celtics()
+        assert all(i in str(news) for i in ("Название:", "Ссылка:"))
 
     def test_parse_bot_user(self):
-        pass
+        user = parse_bot_user(616586034)
+        assert all(i in user for i in ("name", "surname", "ID", "gender"))
 
     def test_get_photos(self):
-        pass
+        photos = get_photos(616586034)
+        assert all(i in str(photos) for i in ("ID", "likes"))
 
     def test_search_country_for_db(self):
-        pass
+        countrys = search_country_for_db()
+        assert all(i in countrys[0] for i in ["id", "title"])
 
     def test_search_city_for_db(self):
-        pass
+        cities = search_city_for_db(1)
+        assert all(i in cities[0] for i in ["id", "title"])
 
     def test_search_users(self):
         test = search_users(18, 20, 1, "москва", 1, 1)
-        pass
+        for i in test:
+            assert all(a in i for a in ("name", "surname", 'User_ID'))
 
     def teardown_class(self):
         print("method teardown")
