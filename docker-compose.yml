@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  bot:
+    depends_on:
+      - db
+    image: my_bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - db-network
+    environment:
+      DATABASE_URL: postgresql://owner_pro_diplom_db:owner_pro_diplom_db@pro_diplom_db_1:5432/pro_diplom_db
+
+  db:
+    image: postgres:12.0-alpine
+    environment:
+      POSTGRES_USER: owner_pro_diplom_db
+      POSTGRES_PASSWORD: owner_pro_diplom_db
+      POSTGRES_DB: pro_diplom_db
+    networks:
+      - bot-network
+      - db-network
+networks:
+  db-network:
+  bot-network:

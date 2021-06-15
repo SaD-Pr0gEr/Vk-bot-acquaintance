@@ -1,15 +1,14 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from config_keys import owner_db, db_name, db_password
+
+from config_keys import owner_db, db_password, db_name
 from need_functions_modules import search_country_for_db, search_city_for_db
 
-engine = create_engine(f"postgresql+psycopg2://{owner_db}:{db_password}@localhost:5432/{db_name}")
-
+engine = create_engine(f"postgresql+psycopg2://{owner_db}:{db_password}@pro_diplom_db_1:5432/{db_name}")
 Session = sessionmaker(bind=engine)
 
 BASE = declarative_base()
-
 
 class Gender(BASE):
     __tablename__ = "user_gender"
@@ -275,4 +274,8 @@ def select_to_user_all_hated_users(owner_vk_id):
 
 
 if __name__ == "__main__":
-    pass
+    BASE.metadata.create_all(engine)
+    insert_into_country()
+    insert_into_status()
+    insert_into_gender()
+    insert_into_cities()

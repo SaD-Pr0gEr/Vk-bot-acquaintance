@@ -1,3 +1,5 @@
+import os
+
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlencode
@@ -5,7 +7,7 @@ from config_keys import user_token
 
 
 def get_token():
-    APP_ID = 7637207
+    APP_ID = os.environ.get("APP_ID", 7637207)
     OAUTH_URL = "https://oauth.vk.com/authorize"
     REDIRECT_URI = "https://oauth.vk.com/blank.html"
     SCOPE = "status"
@@ -15,8 +17,11 @@ def get_token():
         "response_type": "token",
         "client_id": APP_ID
     }
-    print('?'.join([OAUTH_URL, urlencode(OAUTH_PARAMS)]))
-    return True
+    token_url = '?'.join([OAUTH_URL, urlencode(OAUTH_PARAMS)])
+    print(token_url)
+    get = input("Вводите токен с этого URL: ")
+    user_token = get
+    return user_token
 
 
 def info_celtics_wiki():
@@ -145,4 +150,3 @@ def search_users(age_from, age_to, gender, town, status, country):
              for i in response_json if "city" in i and town.lower() in i["city"]["title"].lower() and "country" in i
              and 'is_closed' in i and i['is_closed'] is False)
     return users
-
