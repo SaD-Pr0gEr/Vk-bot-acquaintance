@@ -1,6 +1,5 @@
 venv/
 .idea/
-.gitignore
 diploms_db.png
 __pycache__
 tests
