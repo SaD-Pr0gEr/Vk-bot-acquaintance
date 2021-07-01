@@ -7,7 +7,7 @@ from config_keys import user_token
 
 
 def get_token():
-    APP_ID = os.environ.get("APP_ID", 7637207)
+    APP_ID = os.getenv("APP_ID")
     OAUTH_URL = "https://oauth.vk.com/authorize"
     REDIRECT_URI = "https://oauth.vk.com/blank.html"
     SCOPE = "status"
