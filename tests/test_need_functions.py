@@ -42,5 +42,3 @@ class Testneedfunctions:
 
     def teardown_class(self):
         print("method teardown")
-
-

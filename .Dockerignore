@@ -1,5 +1,8 @@
 venv/
 .idea/
 diploms_db.png
-__pycache__
-tests
+__pycache__/
+tests/
+pytest_cache/
+*.log
+logs/

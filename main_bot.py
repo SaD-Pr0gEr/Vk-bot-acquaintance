@@ -193,7 +193,6 @@ class ServerBot:
                     self.request = event.text.lower()
                     self.need_params.user_id = event.user_id
 
-                    # print(search_users(self.age_from, self.age_to, self.gender, self.town, self.status, self.country))
                     if self.request == "привет" and self.state == STATUSES["hello"]:
                         self.hello()
 
