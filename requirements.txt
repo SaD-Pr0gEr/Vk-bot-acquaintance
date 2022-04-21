@@ -21,3 +21,5 @@ toml==0.10.2
 urllib3==1.26.3
 vk-api==11.9.1
 python-dotenv~=0.20.0
+
+alembic~=1.7.7

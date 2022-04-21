@@ -66,7 +66,7 @@ def parse_bot_user(vk_id):
 
 def get_photos(owner_user_id):
     API_BASE_URL = "https://api.vk.com/method/"
-    API_BASE_VERSION = "5.77"
+    API_BASE_VERSION = "5.131"
     link = urljoin(API_BASE_URL, "photos.get")
     res = requests.get(
         link,

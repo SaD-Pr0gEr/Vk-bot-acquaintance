@@ -141,3 +141,4 @@ media/
 dump.rdb
 app.db
 todo.py
+dump.json

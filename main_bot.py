@@ -85,7 +85,6 @@ class ServerBot:
             city_id = i["city"]["id"]
             country_id = i["country"]["id"]
             gender_id = i["gender"]
-            # print(city_id, city_title, country_id, gender_id)
             insert_searched_users_to_all_vk_users(vk_id, username, surname, gender_id, country_id,
                                                   city_id, self.need_params.status)
             insert_searched_users(self.need_params.user_id, vk_id)
