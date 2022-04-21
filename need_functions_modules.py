@@ -1,13 +1,10 @@
-import os
-
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlencode
-from config_keys import user_token
+from config import USER_TOKEN, APP_ID
 
 
 def get_token():
-    APP_ID = os.getenv("APP_ID")
     OAUTH_URL = "https://oauth.vk.com/authorize"
     REDIRECT_URI = "https://oauth.vk.com/blank.html"
     SCOPE = "status"
@@ -20,8 +17,7 @@ def get_token():
     token_url = '?'.join([OAUTH_URL, urlencode(OAUTH_PARAMS)])
     print(token_url)
     get = input("Вводите токен с этого URL: ")
-    user_token = get
-    return user_token
+    return get
 
 
 def info_celtics_wiki():
@@ -53,7 +49,7 @@ def parse_bot_user(vk_id):
     link = urljoin(API_BASE_URL, "users.get")
     response = requests.get(link,
                             params={
-                                "access_token": user_token,
+                                "access_token": USER_TOKEN,
                                 "v": V,
                                 "user_ids": vk_id,
                                 "fields": ["sex, status"]
@@ -75,7 +71,7 @@ def get_photos(owner_user_id):
     res = requests.get(
         link,
         params={
-            "access_token": user_token,
+            "access_token": USER_TOKEN,
             "v": API_BASE_VERSION,
             "album_id": "profile",
             "extended": 1,
@@ -101,7 +97,7 @@ def search_country_for_db():
     link = urljoin(API_BASE_URL, "database.getCountries")
     response = requests.get(link,
                             params={
-                                "access_token": user_token,
+                                "access_token": USER_TOKEN,
                                 "v": V,
                                 "need_all": 1,
                                 "count": 1000
@@ -116,7 +112,7 @@ def search_city_for_db(c_id):
     link = urljoin(API_BASE_URL, "database.getCities")
     response = requests.get(link,
                             params={
-                                "access_token": user_token,
+                                "access_token": USER_TOKEN,
                                 "v": V,
                                 "country_id": c_id,
                                 "need_all": 0,
@@ -133,7 +129,7 @@ def search_users(age_from, age_to, gender, town, status, country):
     response = requests.get(link,
                             params={
                                 "sort": 0,
-                                "access_token": user_token,
+                                "access_token": USER_TOKEN,
                                 "age_from": age_from,
                                 "age_to": age_to,
                                 "sex": gender,

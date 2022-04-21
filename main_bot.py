@@ -1,7 +1,7 @@
 import vk_api
 from random import randrange
 from vk_api.longpoll import VkLongPoll, VkEventType
-from config_keys import user_token, bots_token
+from config import USER_TOKEN, BOT_TOKEN
 from need_functions_modules import info_celtics_wiki as i_s_w, news_celtics as n_c, search_users, parse_bot_user, \
     get_photos
 from work_with_db_alchemy import insert_bot_user_to_vk_users, select_search_country, insert_search_params, \
@@ -354,6 +354,6 @@ class ServerBot:
 
 
 if __name__ == "__main__":
-    some_user_params = User()
-    some_user = ServerBot(some_user_params, user_token, bots_token)
+    user = User()
+    some_user = ServerBot(user, USER_TOKEN, BOT_TOKEN)
     some_user.talking()
