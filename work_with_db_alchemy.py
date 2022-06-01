@@ -6,11 +6,15 @@ from utils.db.models import Gender, SearchUsers, SearchParams, Status, County, T
 
 
 def initial_genders() -> None:
-    Session().add_all([Gender(title="woman"), Gender(title="man"), Gender(title="any")]).commit()
+    session = Session()
+    session.add_all([Gender(titles="woman"), Gender(titles="man"), Gender(titles="any")])
+    session.commit()
 
 
 def initial_towns() -> None:
-    Session().add(Town(name="Москва", country_id=1)).commit()
+    session = Session()
+    session.add(Town(name="Москва", country_id=1))
+    session.commit()
 
 
 def initial_statuses():

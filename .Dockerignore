@@ -6,3 +6,11 @@ tests/
 pytest_cache/
 *.log
 logs/
+.gitignore
+.git/
+Dockerfile
+docker-compose.yml
+README.md
+.github/
+*.db
+*.log
